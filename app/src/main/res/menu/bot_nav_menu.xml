@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/fragment_home"
+        android:icon="@drawable/icons8_home_1"
+        android:title="@string/Home"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/fragment_saved"
+        android:icon="@drawable/baseline_bookmark_border_24"
+        android:title="@string/Saved"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/fragment_settings"
+        android:icon="@drawable/icons8_settings_1"
+        android:title="@string/Settings"
+        app:showAsAction="withText" />
+
+</menu>

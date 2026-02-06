@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">JobFinderApp</string>
+    <string name="Saved">Saved</string>
+    <string name="Home">Home</string>
+    <string name="Settings">Settings</string>
+</resources>

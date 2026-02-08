@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -10,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.jobfinderapp"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -58,4 +59,18 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     // Логирование запросов
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
+    // Navigation Component
+    val nav_version = "2.7.4" // самая свежая стабильная версия на 2026 год
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+
+    //Dagger2
+    val daggerVersion = "2.51.1"
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    // Процессор аннотаций (генерирует код)
+    ksp("com.google.dagger:dagger-compiler:$daggerVersion")
+    implementation("com.google.dagger:dagger-android:$daggerVersion")
+    ksp("com.google.dagger:dagger-android-processor:$daggerVersion")
 }

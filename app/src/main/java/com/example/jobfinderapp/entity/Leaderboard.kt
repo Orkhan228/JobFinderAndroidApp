@@ -1,4 +1,4 @@
-package com.example.jobfinderapp
+package com.example.jobfinderapp.entity
 
 data class Leaderboard(
     val __CLASS__: String,

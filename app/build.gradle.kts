@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
+
+    //SafeArgs for Navigation
+    id("androidx.navigation.safeargs.kotlin")
+
+    id("kotlin-parcelize")
 }
 
 android {
@@ -51,8 +56,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
-
     // Основная библиотека Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     // Конвертер
@@ -73,4 +76,16 @@ dependencies {
     ksp("com.google.dagger:dagger-compiler:$daggerVersion")
     implementation("com.google.dagger:dagger-android:$daggerVersion")
     ksp("com.google.dagger:dagger-android-processor:$daggerVersion")
+
+    //Room Implementation
+    val roomVersion = "2.6.1" // Актуальная стабильная версия
+
+    // Основная библиотека Room
+    implementation("androidx.room:room-runtime:$roomVersion")
+
+    // Поддержка Kotlin Coroutines для Room (suspend функции)
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    // Процессор аннотаций (используем KSP)
+    ksp("androidx.room:room-compiler:$roomVersion")
 }

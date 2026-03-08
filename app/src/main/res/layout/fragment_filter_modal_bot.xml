@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_root_filter">
+
+    <TextView
+        android:id="@+id/filter_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/filters"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/filter_close_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/icon_close"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="20dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/filter_search_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:ems="6"
+        android:enabled="false"
+        android:text="@string/search"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/filter_close_btn"
+        app:layout_constraintEnd_toStartOf="@id/filter_close_btn"
+        app:layout_constraintTop_toTopOf="@id/filter_close_btn"
+        app:strokeColor="@color/filter_search_btn_stroke_selector"
+        app:strokeWidth="2dp"
+        android:backgroundTint="@color/filter_search_btn_selector"
+        android:textColor="@color/filter_search_btn_text_selector"/>
+
+    <LinearLayout
+        android:id="@+id/filter_clear_lay"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/bg_filter_clear_layout"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_clear_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/clear_all"
+            android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/white"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/light_grey"
+            app:cornerRadius="12dp"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/filter_stroke"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/light_grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filter_name_tv"
+        android:layout_marginTop="18dp" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/filter_nested_sv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/filter_stroke"
+        app:layout_constraintBottom_toTopOf="@id/filter_clear_lay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true">
+        
+        <LinearLayout
+            android:id="@+id/filter_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/job_type_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/job_type"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <CheckBox
+                android:id="@+id/full_time_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/full_time"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="14dp"
+                android:minHeight="0dp"/>
+
+            <CheckBox
+                android:id="@+id/part_time_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/part_time"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:minHeight="0dp"
+                android:layout_marginTop="8dp" />
+
+            <CheckBox
+                android:id="@+id/contract_time_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contract"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:minHeight="0dp"
+                android:layout_marginTop="8dp" />
+
+            <CheckBox
+                android:id="@+id/permanent_time_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permanent"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:minHeight="0dp"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/category_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/category"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/category_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_gravity="center"
+                android:layout_marginTop="14dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+                <AutoCompleteTextView
+                    android:id="@+id/category_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:hint="@string/all_categories"
+                    android:focusable="false"
+                    style="@style/WhiteDropdown"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/location_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/location"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/edit_text_layout"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                style="style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+                android:layout_gravity="center"
+                android:layout_marginTop="14dp"
+                app:counterEnabled="true"
+                app:counterMaxLength="50"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text_input_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/enter_location" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/country_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/country"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/country_layout"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginTop="14dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+                <AutoCompleteTextView
+                    android:id="@+id/country_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:hint="@string/select_country"
+                    android:inputType="none"
+                    style="@style/WhiteDropdown" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/sort_by_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sort_by"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <CheckBox
+                android:id="@+id/sort_salary_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/salary"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="14dp"
+                android:minHeight="0dp" />
+
+            <TextView
+                android:id="@+id/sort_direction_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sort_direction"
+                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp"
+                android:layout_marginStart="20dp" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/sort_dir_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="14dp"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ascending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ascending" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/descending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/descending" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

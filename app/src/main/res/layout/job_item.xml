@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_root"
+    android:paddingTop="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/job_name_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/job_saved_iv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Senior Frontend Developer" />
+
+    <ImageView
+        android:id="@+id/job_saved_iv"
+        android:layout_width="29dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/icon_saved_job_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/job_name_tv" />
+
+    <TextView
+        android:id="@+id/job_company_name_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/job_saved_iv"
+        app:layout_constraintStart_toStartOf="@id/job_name_tv"
+        app:layout_constraintTop_toBottomOf="@id/job_name_tv"
+        tools:text="TechCorp" />
+
+    <ImageView
+        android:id="@+id/location_iv"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="12dp"
+        android:src="@drawable/icon_location"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/job_company_name_tv" />
+
+    <TextView
+        android:id="@+id/location_address_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="12dp"
+        android:ellipsize="end"
+        android:maxEms="8"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        app:layout_constraintBottom_toBottomOf="@id/location_iv"
+        app:layout_constraintStart_toEndOf="@id/location_iv"
+        app:layout_constraintTop_toBottomOf="@id/job_company_name_tv"
+        tools:text="San Francisco, CA" />
+
+    <ImageView
+        android:id="@+id/icon_dot_iv"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_marginStart="6dp"
+        android:src="@drawable/icon_adjust_dot"
+        app:layout_constraintBottom_toBottomOf="@id/location_iv"
+        app:layout_constraintEnd_toStartOf="@id/icon_case_iv"
+        app:layout_constraintStart_toEndOf="@id/location_address_tv"
+        app:layout_constraintTop_toTopOf="@id/location_iv" />
+
+    <ImageView
+        android:id="@+id/icon_case_iv"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="6dp"
+        android:src="@drawable/icon_business_center"
+        app:layout_constraintBottom_toBottomOf="@id/location_iv"
+        app:layout_constraintEnd_toStartOf="@id/contract_time_tv"
+        app:layout_constraintStart_toEndOf="@id/icon_dot_iv"
+        app:layout_constraintTop_toTopOf="@id/location_iv" />
+
+    <TextView
+        android:id="@+id/contract_time_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        app:layout_constraintBottom_toBottomOf="@id/location_iv"
+        app:layout_constraintStart_toEndOf="@id/icon_case_iv"
+        app:layout_constraintTop_toTopOf="@id/location_iv"
+        tools:text="Full-time" />
+
+    <TextView
+        android:id="@+id/salary_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_salary"
+        android:padding="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/light_blue_pr"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/contract_type_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_iv"
+        tools:text="$120k - $150k" />
+
+    <TextView
+        android:id="@+id/contract_type_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/bg_remote"
+        android:padding="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/light_green_pr"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/salary_tv"
+        app:layout_constraintTop_toTopOf="@id/salary_tv"
+        tools:text="Remote" />
+
+    <TextView
+        android:id="@+id/job_description_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="12dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:padding="6dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/salary_tv"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="We are looking for an ambitious Middle Android Developer to join our growing Fintech team. You will be responsible for building and maintaining high-end features for our mobile application used by millions of users worldwide. We value clean code, modern architectural patterns, and a proactive mindset." />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

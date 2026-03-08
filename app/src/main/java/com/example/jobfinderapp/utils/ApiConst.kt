@@ -1,4 +1,4 @@
-package com.example.jobfinderapp
+package com.example.jobfinderapp.utils
 
 object ApiConst {
     const val APP_ID = "d112e51b"

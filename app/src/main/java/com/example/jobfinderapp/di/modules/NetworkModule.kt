@@ -1,7 +1,10 @@
-package com.example.jobfinderapp.di
+package com.example.jobfinderapp.di.modules
 
-import com.example.jobfinderapp.ApiConst
-import com.example.jobfinderapp.RetrofitService
+import android.content.Context
+import com.example.jobfinderapp.data.network.RetrofitService
+import com.example.jobfinderapp.utils.ApiConst
+import com.example.jobfinderapp.utils.NetworkMonitor
+import com.example.jobfinderapp.utils.NetworkMonitorImpl
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -36,6 +39,12 @@ interface NetworkModule {
         @Singleton
         fun provideRetrofitService(retrofit: Retrofit): RetrofitService =
             retrofit.create<RetrofitService>(RetrofitService::class.java)
+
+
+        @Provides
+        @Singleton
+        fun provideNetworkMonitor(context: Context): NetworkMonitor =
+            NetworkMonitorImpl(context)
 
     }
 }

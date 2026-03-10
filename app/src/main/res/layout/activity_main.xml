@@ -5,32 +5,85 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.activities.MainActivity">
+    tools:context=".views.activities.MainActivity"
+    android:background="@color/main_bg_color">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/ma_app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/white">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/ma_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentInsetStart="16dp"
+            app:menu="@menu/ma_toolbar_menu"
+            app:subtitle="Find your dream job"
+            app:subtitleTextAppearance="@style/TextAppearance.AppCompat.MaToolbarSubTittle"
+            app:title="JobSearch"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.MaToolbarTitle" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <View
+        android:id="@+id/ma_app_bar_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/light_grey"
+        app:layout_constraintTop_toBottomOf="@id/ma_app_bar_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/ma_network_problem_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_ma_no_con_tv"
+        android:gravity="center"
+        android:text="@string/no_internet_connection"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:translationZ="10dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ma_app_bar_divider"
+        tools:visibility="visible" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_cont_view"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bot_nav_view"
-        android:name="androidx.navigation.fragment.NavHostFragment"
         app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@id/bot_nav_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ma_app_bar_divider"
         app:navGraph="@navigation/fragments_navigation" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bot_nav_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:menu="@menu/bot_nav_menu"
-        app:itemTextColor="@color/grey_bot_menu"
-        app:itemIconSize="30dp"
-        app:itemIconTint="@color/grey_bot_menu"
+        android:background="@drawable/bg_root_no_rad"
+        app:horizontalItemTextAppearanceActive="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        app:horizontalItemTextAppearanceInactive="@style/TextAppearance.AppCompat.JobItemTextAppearance"
         app:itemBackground="@android:color/transparent"
+        app:itemIconSize="25dp"
+        app:itemIconTint="@color/bottom_nav_view_selector"
+        app:itemTextAppearanceActive="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        app:itemTextAppearanceInactive="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        app:itemTextColor="@color/bottom_nav_view_selector"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:menu="@menu/bot_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

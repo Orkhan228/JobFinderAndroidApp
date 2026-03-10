@@ -8,16 +8,41 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.jobfinderapp.views.fragments.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        android:label="JobSearch"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/savedFragment"
         android:name="com.example.jobfinderapp.views.fragments.SavedFragment"
-        android:label="fragment_saved"
-        tools:layout="@layout/fragment_saved" />
+        android:label="Saved Jobs"
+        tools:layout="@layout/fragment_saved" >
+        <action
+            android:id="@+id/action_savedFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.jobfinderapp.views.fragments.SettingsFragment"
-        android:label="fragment_settings"
+        android:label="Settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.jobfinderapp.views.fragments.DetailsFragment"
+        android:label="Job Details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="jobWithSaved"
+            app:argType="com.example.jobfinderapp.data.entity.JobWithSaved" />
+    </fragment>
 </navigation>

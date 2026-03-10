@@ -5,56 +5,157 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.jobfinderapp.App
+import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
+import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.R
+import com.example.jobfinderapp.databinding.FragmentHomeBinding
+import com.example.jobfinderapp.entity.Country
+import com.example.jobfinderapp.viewModels.HomeFragViewModel
+import com.example.jobfinderapp.views.rv_adapters.JobAdapter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var binding: FragmentHomeBinding
+    private val hfViewModel: HomeFragViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //Чтобы при нажатии на весь SearchView, откывалась клава.
+        binding.hfSearchView.setOnClickListener {
+            binding.hfSearchView.isIconified = false
+        }
+
+        //чтобы при тапе, вне searchView, он закрывался
+        binding.root.setOnClickListener {
+            binding.hfSearchView.clearFocus()
+        }
+
+        //Open filter modal bottom sheet
+        binding.hfFilterBtn.setOnClickListener {
+            //Тут происходит проверка, если есть такой фрагмент с определенным тэгом, то не надо создавать еще один.
+            if (childFragmentManager.findFragmentByTag(FILTER_FRAGMENT_TAG) == null) {
+                val filterBotSheet = FilterBottomSheet()
+                filterBotSheet.show(childFragmentManager, FILTER_FRAGMENT_TAG)
+            }
+        }
+
+
+        binding.hfSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            //принятие ключевых слов, для поиска работы, опять же при нажатии submit, то есть подтверждения, закрывать searchView
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                println("!!! textSubmit")
+
+                if (query.isNullOrBlank()) return true
+
+                hfViewModel.onSearchKeyWordsChanged(query)
+
+                binding.hfSearchView.clearFocus()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                println("!!! textChange")
+                return true
+            }
+
+        })
+
+        val jobAdapter = JobAdapter(onClick = { jobWithSaved ->
+
+            val action =
+                HomeFragmentDirections.actionHomeFragmentToDetailsFragment(jobWithSaved)
+
+            findNavController().navigate(action)
+
+        }, onFavClick = { jobWS ->
+            hfViewModel.toggleSaved(jobWS.job)
+        })
+
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+
+        val paddingMain = resources.getDimension(R.dimen.dimenForRVItems).toInt()
+        val itemDec = ItemDecorationHf(paddingMain)
+
+        binding.hfRecyclerView.layoutManager = linearLayoutManager
+        binding.hfRecyclerView.adapter = jobAdapter
+        binding.hfRecyclerView.addItemDecoration(itemDec)
+
+
+        //подписка на изменения списка работ. Так как работаем c ListAdapter, то список обновляем через submitList
+        hfViewModel.jobsWithSaved.observe(viewLifecycleOwner) { jobWithSavedList ->
+
+            val listState = jobWithSavedList.isNullOrEmpty()
+
+            binding.noApiDbLay.isVisible = listState
+            binding.hfRecyclerView.isVisible = !listState
+
+            jobAdapter.submitList(jobWithSavedList)
+        }
+
+
+        //подписка на mediatorLiveData, для показа количества параметров в краю фильтра.
+        hfViewModel.filterBadgeCount.observe(viewLifecycleOwner) { count ->
+            if (count > 0) {
+                binding.filterBadgeTv.text = count.toString()
+                binding.filterBadgeTv.visibility = View.VISIBLE
+            } else {
+                binding.filterBadgeTv.visibility = View.GONE
+            }
+        }
+
+        //Реализация пагинации
+        binding.hfRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int,
+                dy: Int,
+            ) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if (dy < 0) return
+
+                val layoutManager = binding.hfRecyclerView.layoutManager as LinearLayoutManager
+
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!hfViewModel.isLoading &&
+                    !hfViewModel.isLastPage &&
+                    (firstVisibleItemPosition + visibleItemCount >= totalItemCount - 5)) {
+                    hfViewModel.loadNextPage()
+                }
+            }
+        })
+
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        const val FILTER_FRAGMENT_TAG = "FilterBottomSheet"
     }
 }

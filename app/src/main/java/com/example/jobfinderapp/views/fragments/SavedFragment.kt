@@ -5,56 +5,83 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 import com.example.jobfinderapp.R
+import com.example.jobfinderapp.data.entity.JobWithSaved
+import com.example.jobfinderapp.databinding.FragmentSavedBinding
+import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
+import com.example.jobfinderapp.views.rv_adapters.JobAdapter
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SavedFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SavedFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var binding: FragmentSavedBinding
+    private val sfViewModel: SavedFragmentViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_saved, container, false)
+        binding = FragmentSavedBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SavedFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SavedFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setState()
+    }
+
+    private fun setState() {
+
+        val layManager = LinearLayoutManager(requireContext())
+
+        val savedJobsAdapter = JobAdapter(
+            onClick = { jobWS ->
+                val action =
+                    SavedFragmentDirections.actionSavedFragmentToDetailsFragment(jobWS)
+
+                findNavController().navigate(action)
+            },
+            onFavClick = {
+                sfViewModel.toggleSaved(it.job)
             }
+        )
+
+        val dimen = resources.getDimension(R.dimen.dimenForRVItems).toInt()
+        val itemDec = ItemDecorationHf(dimen)
+
+        binding.savedRecyclerView.layoutManager = layManager
+        binding.savedRecyclerView.adapter = savedJobsAdapter
+
+        //Это нужно для того, если фрагмент пересоздаться, чтобы не было добавлено лишних отступов
+        if (binding.savedRecyclerView.itemDecorationCount == 0) {
+            binding.savedRecyclerView.addItemDecoration(itemDec)
+        }
+
+
+        sfViewModel.savedJobsUI.observe(viewLifecycleOwner) { savedJobList ->
+
+            if (savedJobList.isEmpty()) {
+                binding.savedRecyclerView.visibility = View.GONE
+                binding.noSavedJobsLay.isVisible = true
+            } else {
+                binding.noSavedJobsLay.visibility = View.GONE
+                binding.savedRecyclerView.isVisible = true
+                savedJobsAdapter.submitList(savedJobList)
+            }
+
+        }
+
     }
 }

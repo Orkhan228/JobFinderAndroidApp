@@ -3,4 +3,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey_bot_menu">#6A6A6A</color>
+    <color name="light_grey">#D1D1D1</color>
+    <color name="light_grey_darker">#B0B8BE</color>
+    <color name="light_blue_pr">#1861FD</color>
+    <color name="very_light_blue_pr">#E8F0FE</color>
+    <color name="light_green_pr">#00897B</color>
+    <color name="very_light_green_pr">#E0F2F1</color>
+    <color name="main_bg_color">#F8F9FA</color>
+    <color name="light_red">#FD2C36</color>
+    <color name="light_grey_saved">#B0B8C1</color>
+    <color name="category_bg">#F8F2FF</color>
+    <color name="category_text">#8A2BE2</color>
+    <color name="det_salary_bg">#F1F6FF</color>
+    <color name="det_salary_stroke">#DDE7FF</color>
+    <color name="det_location_bg">#F2F4F7</color>
+    <color name="det_location_icon">#344054</color>
 </resources>

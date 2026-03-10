@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="32dp"
+    tools:context=".views.fragments.DetailsFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/det_nested_scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/det_scroll_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/det_main_card_lay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:background="@drawable/bg_root"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/det_job_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance.Dropdown"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Senior Frontend Developer" />
+
+                <ImageView
+                    android:id="@+id/det_company_iv"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/icon_apartment"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/det_job_name_tv" />
+
+                <TextView
+                    android:id="@+id/det_company_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    android:textColor="@color/grey_bot_menu"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/det_company_iv"
+                    app:layout_constraintStart_toEndOf="@id/det_company_iv"
+                    app:layout_constraintTop_toBottomOf="@id/det_job_name_tv"
+                    app:layout_constraintTop_toTopOf="@id/det_company_iv"
+                    tools:text="TechCorp" />
+
+                <ImageView
+                    android:id="@+id/det_calendar_iv"
+                    android:layout_width="19dp"
+                    android:layout_height="19dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/icon_calendar"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/det_company_iv" />
+
+                <TextView
+                    android:id="@+id/det_calendar_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    android:textColor="@color/grey_bot_menu"
+                    app:layout_constraintBottom_toBottomOf="@id/det_calendar_iv"
+                    app:layout_constraintStart_toEndOf="@id/det_calendar_iv"
+                    app:layout_constraintTop_toTopOf="@id/det_calendar_iv"
+                    tools:text="Posted 1 months ago" />
+
+
+                <LinearLayout
+                    android:id="@+id/det_contract_time_lay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_salary"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/det_calendar_iv">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/det_business_center_blue" />
+
+                    <TextView
+                        android:id="@+id/det_contract_time_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                        android:textColor="@color/light_blue_pr"
+                        android:textStyle="bold"
+                        tools:text="Full-time" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:id="@+id/det_category_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_det_category"
+                    android:padding="10dp"
+                    android:textColor="@color/category_text"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/det_contract_time_lay"
+                    app:layout_constraintStart_toEndOf="@id/det_contract_time_lay"
+                    app:layout_constraintTop_toTopOf="@id/det_contract_time_lay"
+                    tools:text="Engineering" />
+
+                <LinearLayout
+                    android:id="@+id/det_contract_type_lay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_remote"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    app:layout_constraintStart_toStartOf="@id/det_contract_time_lay"
+                    app:layout_constraintTop_toBottomOf="@id/det_contract_time_lay">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/icon_handshake_green" />
+
+                    <TextView
+                        android:id="@+id/det_contract_type_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                        android:textColor="@color/light_green_pr"
+                        android:textStyle="bold"
+                        tools:text="Permanent" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/det_salary_info_lay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_det_salary"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/det_contract_type_lay">
+
+                    <ImageView
+                        android:id="@+id/det_salary_iv"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="6dp"
+                        android:padding="8dp"
+                        android:background="@drawable/bg_filter_btn"
+                        android:src="@drawable/icon_money_det" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/det_salary_range_nu"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/salary_1"
+                            android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                            android:textColor="@color/grey_bot_menu"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/det_salary_range_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/open_sans_bold"
+                            android:textAppearance="@style/TextAppearance.AppCompat.DetFragmentTextAppearanceExtraBold"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="$120k"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/det_location_info_lay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/det_main_card_lay"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16dp"
+                android:padding="20dp"
+                android:background="@drawable/bg_root">
+                
+                <ImageView
+                    android:id="@+id/det_location_iv"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_det_location"
+                    android:padding="8dp"
+                    android:src="@drawable/icon_location"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:id="@+id/det_loc_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="@id/det_location_iv"
+                    android:text="@string/location"
+                    app:layout_constraintStart_toEndOf="@id/det_location_iv"
+                    android:textSize="16sp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.DetFragmentTextAppearanceExtraBold"
+                    android:layout_marginStart="12dp" />
+
+                <TextView
+                    android:id="@+id/det_location_display_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/det_loc_name"
+                    tools:text="San Francisco, CA"
+                    app:layout_constraintStart_toStartOf="@id/det_loc_name"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    android:layout_marginTop="3dp" />
+
+                <TextView
+                    android:id="@+id/det_location_country_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/det_location_display_name_tv"
+                    app:layout_constraintStart_toStartOf="@id/det_location_display_name_tv"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    tools:text="United States"
+                    android:textColor="@color/grey_bot_menu"
+                    android:layout_marginTop="3dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/det_inf_about_role_lay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/det_location_info_lay"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="@drawable/bg_root">
+
+                <TextView
+                    android:id="@+id/det_info_about_role_nu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about_the_role"
+                    android:textAppearance="@style/TextAppearance.AppCompat.DetFragmentTextAppearanceExtraBold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/det_info_about_role_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="We are looking for a talented Senior Frontend Developer to join our growing team. You will be responsible for building and maintaining web applications using modern JavaScript frameworks."
+                    android:layout_marginTop="12dp"
+                    android:textSize="15sp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

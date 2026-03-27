@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
@@ -29,6 +31,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
         binding = FragmentFilterModalBotBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -200,8 +203,47 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
 
         viewModel.filterState.observe(viewLifecycleOwner) { isShown ->
             binding.filterSearchBtn.isEnabled = isShown
-            binding.filterClearLay.isVisible = isShown
+
+
+            animateClearBtn(isShown)
         }
+    }
+
+    private fun animateClearBtn(isShown: Boolean) {
+        val clearLay = binding.filterClearLay
+
+        clearLay.animate().cancel()
+
+        if (isShown) {
+            if (clearLay.visibility == View.VISIBLE && clearLay.alpha == 1f) return
+
+            clearLay.visibility = View.VISIBLE
+            clearLay.alpha = 0f
+            clearLay.translationY = clearLay.height.toFloat()
+
+            clearLay.post {
+                clearLay.alpha = 0f
+                clearLay.translationY = clearLay.height.toFloat()
+
+                clearLay.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setInterpolator(DecelerateInterpolator())
+                    .setDuration(200)
+                    .start()
+            }
+
+        } else {
+            if (clearLay.visibility != View.VISIBLE) return
+            clearLay.animate()
+                .alpha(0f)
+                .translationY(clearLay.height.toFloat())
+                .setInterpolator(AccelerateInterpolator())
+                .setDuration(200)
+                .withEndAction { clearLay.visibility = View.GONE }
+                .start()
+        }
+
     }
 
 }

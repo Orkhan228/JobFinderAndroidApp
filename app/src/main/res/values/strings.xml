@@ -36,4 +36,17 @@
     <string name="salary_range">Salary Range</string>
     <string name="salary_1">Salary</string>
     <string name="about_the_role">About the Role</string>
+    <string name="applied">Applied</string>
+    <string name="browse_jobs">Browse Jobs</string>
+    <string name="start_applying_to_jobs_to_see_them_here">Start applying to jobs to see them here</string>
+    <string name="no_applications_yet">No Applications Yet</string>
+    <string name="applied_on">Applied on:</string>
+    <string name="withdraw_application">Withdraw Application</string>
+    <string name="apply_now">Apply Now</string>
+    <string name="are_you_sure_you_want_to_withdraw_your_application_for_this_job">Are you sure you want to withdraw your application for this job?</string>
+    <string name="yes_withdraw">Yes, Withdraw</string>
+    <string name="cancel">Cancel</string>
+    <string name="there_are_no_results_for_your_search">There are no results for your search</string>
+    <string name="try_changing_filters_or_entering_a_different_word">Try changing filters or entering a different word</string>
+    <string name="application_submitted_successfully">Application submitted successfully!</string>
 </resources>

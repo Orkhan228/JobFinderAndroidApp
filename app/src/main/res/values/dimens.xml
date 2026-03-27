@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dimenForRVItems">10dp</dimen>
+    <dimen name="dimenForRVItemsSide">20dp</dimen>
+    <dimen name="rvExtraPadding">100dp</dimen>
+
 </resources>

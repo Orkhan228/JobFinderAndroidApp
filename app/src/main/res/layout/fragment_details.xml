@@ -2,18 +2,41 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/det_lay_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="32dp"
     tools:context=".views.fragments.DetailsFragment">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/success_apply_btn_inf"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:text="@string/application_submitted_successfully"
+        android:textColor="@color/white"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:icon="@drawable/icon_approval"
+        app:iconGravity="textStart"
+        app:cornerRadius="16dp"
+        android:backgroundTint="@color/success_green"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_marginTop="10dp"
+        android:clickable="false"
+        android:focusable="false" />
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/det_nested_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/det_applied_job_lay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,7 +46,10 @@
             android:id="@+id/det_scroll_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="24dp"
+            android:paddingBottom="32dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/det_main_card_lay"
@@ -310,5 +336,42 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:id="@+id/det_applied_job_lay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/white">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:layout_gravity="top"
+            android:background="@color/light_grey" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/det_applied_job_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/apply_now"
+            android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:icon="@drawable/icon_approval"
+            app:iconTint="@color/white"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            app:cornerRadius="12dp"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:backgroundTint="@color/det_applied_btn_selector" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,24 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_root"
-    android:paddingTop="16dp"
-    android:paddingStart="16dp"
+    android:id="@+id/job_item_root"
+    android:background="@drawable/bg_job_item"
+    android:paddingTop="18dp"
+    android:paddingStart="12dp"
     android:paddingEnd="16dp"
-    android:paddingBottom="6dp">
+    android:paddingBottom="10dp">
 
     <TextView
         android:id="@+id/job_name_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="19dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
         android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:layout_marginTop="4dp"
         app:layout_constraintEnd_toStartOf="@id/job_saved_iv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,12 +31,16 @@
 
     <ImageView
         android:id="@+id/job_saved_iv"
-        android:layout_width="29dp"
-        android:layout_height="29dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:paddingEnd="2dp"
+        android:paddingStart="12dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="10dp"
         android:src="@drawable/icon_saved_job_item"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/job_name_tv" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:stateListAnimator="@animator/anim_selec_saved_btn"/>
 
     <TextView
         android:id="@+id/job_company_name_tv"

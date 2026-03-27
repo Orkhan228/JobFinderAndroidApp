@@ -40,9 +40,42 @@
         android:id="@+id/detailsFragment"
         android:name="com.example.jobfinderapp.views.fragments.DetailsFragment"
         android:label="Job Details"
-        tools:layout="@layout/fragment_details" >
+        tools:layout="@layout/fragment_details">
         <argument
-            android:name="jobWithSaved"
-            app:argType="com.example.jobfinderapp.data.entity.JobWithSaved" />
+            android:name="jobUIModel"
+            app:argType="com.example.jobfinderapp.data.entity.JobUIModel"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="jobfinder://job/{jobId}" />
+        <argument
+            android:name="jobId"
+            app:argType="string"
+            android:defaultValue=""/>
     </fragment>
+    <fragment
+        android:id="@+id/appliedFragment"
+        android:name="com.example.jobfinderapp.views.fragments.AppliedFragment"
+        android:label="Applied Jobs"
+        tools:layout="@layout/fragment_applied" >
+        <action
+            android:id="@+id/action_appliedFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_appliedFragment_to_withdrawDialogFragment"
+            app:destination="@id/withdrawDialogFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <dialog
+        android:id="@+id/withdrawDialogFragment"
+        android:name="com.example.jobfinderapp.views.fragments.WithdrawDialogFragment"
+        android:label="WithdrawDialogFragment" />
 </navigation>

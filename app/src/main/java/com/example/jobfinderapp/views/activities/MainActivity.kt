@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_cont_view) as NavHostFragment
         navController = navHostFragment.navController
 
-        val topLevelDestination = setOf(R.id.homeFragment, R.id.savedFragment, R.id.settingsFragment)
+        val topLevelDestination = setOf(R.id.homeFragment, R.id.appliedFragment, R.id.savedFragment, R.id.settingsFragment, R.id.withdrawDialogFragment)
 
         val appBarConfiguration = AppBarConfiguration(
             topLevelDestination
@@ -59,33 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.maToolbar.setupWithNavController(navController, appBarConfiguration)
 
-        val options = NavOptions.Builder()
-            .setLaunchSingleTop(true)
-            .setRestoreState(true)
-            .setPopUpTo(navController.graph.startDestinationId, saveState = true, inclusive = false)
-            .build()
-
-        binding.botNavView.setOnItemSelectedListener {
-            when(it.itemId) {
-                R.id.fragment_home -> {
-                    navController.navigate(R.id.homeFragment, null, options)
-                    true
-                }
-
-                R.id.fragment_saved -> {
-                    navController.navigate(R.id.savedFragment, null, options)
-                    true
-                }
-
-                R.id.fragment_settings -> {
-                    navController.navigate(R.id.settingsFragment, null, options)
-                    true
-                }
-
-                else -> false
-            }
-
-        }
+        binding.botNavView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
             binding.botNavView.visibility =

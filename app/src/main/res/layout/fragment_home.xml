@@ -79,8 +79,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
-
     <LinearLayout
         android:id="@+id/no_api_db_lay"
         android:layout_width="match_parent"
@@ -128,9 +126,61 @@
 
     </LinearLayout>
 
+
+    <LinearLayout
+        android:id="@+id/no_search_res_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="104dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_for_no_saved_lay"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/no_search_iv"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:src="@drawable/icon_search_off" />
+
+        <TextView
+            android:id="@+id/no_search_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="@string/there_are_no_results_for_your_search"
+            android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance.Dropdown"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/no_result_tv_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="@string/try_changing_filters_or_entering_a_different_word"
+            android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hf_recycler_view"
         android:layout_width="match_parent"
+        android:paddingTop="10dp"
+        android:clipToPadding="false"
+        android:layoutAnimation="@anim/lay_anim_from_bot"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:visibility="gone" />

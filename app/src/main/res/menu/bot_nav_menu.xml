@@ -3,21 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/fragment_home"
+        android:id="@+id/homeFragment"
         android:icon="@drawable/icons8_home_1"
         android:title="@string/Home"
         app:showAsAction="withText" />
 
     <item
-        android:id="@+id/fragment_saved"
+        android:id="@+id/appliedFragment"
+        android:icon="@drawable/icon_check_circle"
+        android:title="@string/applied"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/savedFragment"
         android:icon="@drawable/baseline_bookmark_border_24"
         android:title="@string/Saved"
         app:showAsAction="withText" />
 
     <item
-        android:id="@+id/fragment_settings"
+        android:id="@+id/settingsFragment"
         android:icon="@drawable/icons8_settings_1"
         android:title="@string/Settings"
         app:showAsAction="withText" />
+
+
 
 </menu>

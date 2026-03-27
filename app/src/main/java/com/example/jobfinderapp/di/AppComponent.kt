@@ -5,6 +5,7 @@ import com.example.jobfinderapp.App
 import com.example.jobfinderapp.di.modules.DatabaseModule
 import com.example.jobfinderapp.di.modules.NetworkModule
 import com.example.jobfinderapp.di.modules.RepositoryModule
+import com.example.jobfinderapp.viewModels.AppliedFragmentViewModel
 import com.example.jobfinderapp.viewModels.DetailsFragmentViewModel
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
@@ -29,6 +30,7 @@ interface AppComponent {
     fun inject(hfViewModel: HomeFragViewModel)
     fun inject(sfViewModel: SavedFragmentViewModel)
     fun inject(dfViewModel: DetailsFragmentViewModel)
+    fun inject(afViewModel: AppliedFragmentViewModel)
     fun inject(activity: MainActivity)
 
 }

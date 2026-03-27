@@ -4,7 +4,7 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class ItemDecorationHf(private val paddingMain: Int) : RecyclerView.ItemDecoration() {
+class ItemDecorationHf(private val paddingMain: Int, private val paddingSide: Int) : RecyclerView.ItemDecoration() {
 
     //Делаю отступы для RV
 
@@ -16,8 +16,8 @@ class ItemDecorationHf(private val paddingMain: Int) : RecyclerView.ItemDecorati
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        outRect.left = paddingMain
-        outRect.right = paddingMain
+        outRect.left = paddingSide
+        outRect.right = paddingSide
         outRect.bottom = paddingMain
         outRect.top = paddingMain
     }

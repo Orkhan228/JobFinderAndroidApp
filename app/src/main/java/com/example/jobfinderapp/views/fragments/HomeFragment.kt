@@ -1,16 +1,23 @@
 package com.example.jobfinderapp.views.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.DialogFragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +25,7 @@ import com.example.jobfinderapp.App
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.R
+import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.FragmentHomeBinding
 import com.example.jobfinderapp.entity.Country
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
@@ -30,8 +38,11 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val hfViewModel: HomeFragViewModel by activityViewModels()
 
+    private var didRunEnterAnimationForRv = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -45,6 +56,17 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val extraRvPadding = requireContext().resources.getDimension(R.dimen.rvExtraPadding).toInt()
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.hfRecyclerView) { v, windowInsets ->
+            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            v.updatePadding(bottom = extraRvPadding + systemBars.bottom)
+            windowInsets
+        }
+
+        animateBtn()
+
         //Чтобы при нажатии на весь SearchView, откывалась клава.
         binding.hfSearchView.setOnClickListener {
             binding.hfSearchView.isIconified = false
@@ -56,6 +78,7 @@ class HomeFragment : Fragment() {
         }
 
         //Open filter modal bottom sheet
+        //переделать на переход через navController
         binding.hfFilterBtn.setOnClickListener {
             //Тут происходит проверка, если есть такой фрагмент с определенным тэгом, то не надо создавать еще один.
             if (childFragmentManager.findFragmentByTag(FILTER_FRAGMENT_TAG) == null) {
@@ -85,21 +108,17 @@ class HomeFragment : Fragment() {
 
         })
 
-        val jobAdapter = JobAdapter(onClick = { jobWithSaved ->
-
-            val action =
-                HomeFragmentDirections.actionHomeFragmentToDetailsFragment(jobWithSaved)
-
-            findNavController().navigate(action)
-
-        }, onFavClick = { jobWS ->
-            hfViewModel.toggleSaved(jobWS.job)
+        val jobAdapter = JobAdapter(onClick = { jobUIModel, v ->
+            openDetails(jobUIModel, v)
+        }, onFavClick = { jobUIM ->
+            hfViewModel.toggleSaved(jobUIM.job)
         })
 
         val linearLayoutManager = LinearLayoutManager(requireContext())
 
         val paddingMain = resources.getDimension(R.dimen.dimenForRVItems).toInt()
-        val itemDec = ItemDecorationHf(paddingMain)
+        val paddingSide = resources.getDimension(R.dimen.dimenForRVItemsSide).toInt()
+        val itemDec = ItemDecorationHf(paddingMain, paddingSide)
 
         binding.hfRecyclerView.layoutManager = linearLayoutManager
         binding.hfRecyclerView.adapter = jobAdapter
@@ -107,16 +126,23 @@ class HomeFragment : Fragment() {
 
 
         //подписка на изменения списка работ. Так как работаем c ListAdapter, то список обновляем через submitList
-        hfViewModel.jobsWithSaved.observe(viewLifecycleOwner) { jobWithSavedList ->
+        hfViewModel.jobsUIModel.observe(viewLifecycleOwner) { jobUIModelList ->
 
-            val listState = jobWithSavedList.isNullOrEmpty()
+            val isEmpty = jobUIModelList.isNullOrEmpty()
+            val isConnected = hfViewModel.internetState.value ?: true
 
-            binding.noApiDbLay.isVisible = listState
-            binding.hfRecyclerView.isVisible = !listState
+            binding.noApiDbLay.isVisible = !isConnected && isEmpty
+            binding.noSearchResLay.isVisible = isConnected && isEmpty
+            binding.hfRecyclerView.isVisible = !isEmpty
 
-            jobAdapter.submitList(jobWithSavedList)
+            jobAdapter.submitList(jobUIModelList) {
+                if (!didRunEnterAnimationForRv) {
+                    binding.hfRecyclerView.scheduleLayoutAnimation()
+                    didRunEnterAnimationForRv = true
+                }
+            }
+
         }
-
 
         //подписка на mediatorLiveData, для показа количества параметров в краю фильтра.
         hfViewModel.filterBadgeCount.observe(viewLifecycleOwner) { count ->
@@ -153,6 +179,65 @@ class HomeFragment : Fragment() {
             }
         })
 
+    }
+
+    private fun openDetails(jobUIModel: JobUIModel, v: View) {
+        val trName = "job_title${jobUIModel.job.title}"
+
+        val extras = FragmentNavigatorExtras(v to trName)
+
+        val action =
+            HomeFragmentDirections.actionHomeFragmentToDetailsFragment(jobUIModel)
+
+        findNavController().navigate(action, extras)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun animateBtn() {
+        val applyBtn = binding.hfFilterBtn
+
+        applyBtn.setOnTouchListener { v, event ->
+
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.isPressed = true
+
+                    v.animate()
+                        .scaleX(0.92f)
+                        .scaleY(0.92f)
+                        .setDuration(100)
+                        .start()
+
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    v.isPressed = false
+
+                    v.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(100)
+                        .start()
+
+                    v.performClick()
+                    true
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    v.isPressed = false
+
+                    v.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(100)
+                        .start()
+
+                    true
+                }
+            }
+            false
+        }
     }
 
     companion object {

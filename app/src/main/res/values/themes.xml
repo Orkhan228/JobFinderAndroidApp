@@ -26,6 +26,12 @@
         <item name="android:letterSpacing">0.015</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="TextAppearance.AppCompat.DetFragmentTextAppearanceExtraBold.AppliedFragment">
+        <item name="android:letterSpacing">0.022</item>
+    </style>
+
+
     
     <style name="TextAppearance.AppCompat.MaToolbarTitle">
         <item name="android:fontFamily">@font/open_sans</item>
@@ -55,4 +61,5 @@
         <item name="android:popupBackground">@drawable/bg_dropdown</item>
 
     </style>
+
 </resources>

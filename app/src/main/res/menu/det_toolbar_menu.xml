@@ -6,7 +6,8 @@
         android:id="@+id/det_share_btn"
         android:icon="@drawable/icon_share"
         android:title="@string/share"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        />
 
     <item
         android:id="@+id/det_save_btn"

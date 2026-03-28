@@ -3,6 +3,7 @@ package com.example.jobfinderapp.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
@@ -13,7 +14,6 @@ import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.entity.Category
 import com.example.jobfinderapp.entity.Country
 import com.example.jobfinderapp.data.entity.Job
-import com.example.jobfinderapp.data.entity.JobWithSaved
 import com.example.jobfinderapp.entity.Company
 import com.example.jobfinderapp.entity.Location
 import com.example.jobfinderapp.entity.Result
@@ -30,13 +30,18 @@ class HomeFragViewModel : ViewModel() {
     lateinit var networkMonitor: NetworkMonitor
 
     //DB
-    val jobsWithSaved by lazy { interActor.getJobsWithSavedDB() }
+    val jobsUIModel by lazy { interActor.getJobsUIModelDB() }
 
     //
     private var wasOffline = false
 
     private val _filter = MutableLiveData<JobFilter>(createDefaultFilter())
     val filter: LiveData<JobFilter> = _filter
+
+    private val _internetState = MutableLiveData<Boolean>()
+    val internetState: LiveData<Boolean> = _internetState
+
+
 
     //Создаем liveData от другого liveData, посредством map, в сравнение не берем такие параметры как, locations и searchKeyWords
     val filterState = _filter.map { current ->
@@ -65,6 +70,18 @@ class HomeFragViewModel : ViewModel() {
 
     private var lastAppliedFilter: JobFilter? = null
 
+    private val networkObserver = Observer<Boolean> { connected ->
+        if (!connected) {
+            _internetState.value = false
+            wasOffline = true
+        }
+        if (connected && wasOffline) {
+            _internetState.value = true
+            wasOffline = false
+            loadNextPage()
+        }
+    }
+
     init {
         App.instance.appComponent.inject(this)
 
@@ -73,16 +90,10 @@ class HomeFragViewModel : ViewModel() {
         _filterBadgeCount.addSource(_isFilterInstalled) { updateBadge() }
         _filterBadgeCount.addSource(filter) { updateBadge() }
 
-        networkMonitor.isConnected.observeForever { connected ->
-            if (!connected) {
-                wasOffline = true
-            }
-            if (connected && wasOffline) {
-                wasOffline = false
-                loadNextPage()
-            }
-        }
+        networkMonitor.isConnected.observeForever(networkObserver)
     }
+
+
 
     private fun createDefaultFilter() =
         JobFilter(
@@ -308,8 +319,11 @@ class HomeFragViewModel : ViewModel() {
                 else -> "Permanent"
             }
 
-            val t = resItem.created.split("T", "Z")
-            val createdTime = "Posted ${t[0]} ${t[1]}"
+            val date = resItem.created.split("T", "Z")
+            val a = date[1].split(":")
+            val b = "${a[0]}:${a[1]}"
+
+            val createdTime = "Posted ${date[0]} $b"
 
             Job(
                 id = id,
@@ -325,5 +339,11 @@ class HomeFragViewModel : ViewModel() {
                 contract_type = contractType
             )
         }
+
+
+    override fun onCleared() {
+        super.onCleared()
+        networkMonitor.isConnected.removeObserver(networkObserver)
+    }
 
 }

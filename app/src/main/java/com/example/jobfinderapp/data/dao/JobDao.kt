@@ -6,9 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
-import com.example.jobfinderapp.data.entity.JobWithSaved
+import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.SavedJob
+import com.example.jobfinderapp.data.entity.SharedJobs
 
 @Dao
 interface JobDao {
@@ -22,25 +24,65 @@ interface JobDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertToSaved(savedJob: SavedJob)
 
-    @Query("DELETE FROM saved_jobs WHERE saved_id = :id")
+    @Query("DELETE FROM saved_jobs WHERE id = :id")
     suspend fun deleteFromSaved(id: String)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM saved_jobs WHERE saved_id = :id)")
+    @Query("SELECT EXISTS(SELECT 1 FROM saved_jobs WHERE id = :id)")
     suspend fun isInSaved(id: String): Boolean
 
-    @Query("SELECT job_table.*, case when saved_jobs.saved_id is not null then 1 else 0 end as isSaved from job_table left join saved_jobs on saved_jobs.saved_id = job_table.id")
-    fun jobsWithSaved(): LiveData<List<JobWithSaved>>
+    @Query("""
+    select 
+    saved_jobs.*,
+    1 as isSaved,
+    case when applied_jobs.id is not null then 1 else 0 end as isApplied
+    from saved_jobs
+    left join applied_jobs on saved_jobs.id = applied_jobs.id
+    """)
+    fun getSavedJobs(): LiveData<List<JobUIModel>>
 
-    @Query("SELECT * from saved_jobs")
-    fun getSavedJobs(): LiveData<List<SavedJob>>
+    @Query("""
+    SELECT job_table.*,
+    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
+    case when applied_jobs.id is not null then 1 else 0 end as isApplied
+    from job_table
+    left join saved_jobs on saved_jobs.id = job_table.id
+    left join applied_jobs on applied_jobs.id = job_table.id
+    """)
+    fun jobsUIModel(): LiveData<List<JobUIModel>>
 
-    @Query("SELECT job_table.*, case when saved_jobs.saved_id is not null then 1 else 0 end as isSaved from job_table left join saved_jobs on saved_jobs.saved_id = job_table.id where job_table.id = :id")
-    fun getJobById(id: String): LiveData<JobWithSaved?>
+    @Query("SELECT job_table.*, case when saved_jobs.id is not null then 1 else 0 end as isSaved,  case when applied_jobs.id is not null then 1 else 0 end as isApplied from job_table left join saved_jobs on saved_jobs.id = job_table.id left join applied_jobs on applied_jobs.id = job_table.id where job_table.id = :id")
+    fun getJobById(id: String): LiveData<JobUIModel?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertToApplied(appliedJob: AppliedJob)
+
+    @Query("DELETE FROM applied_jobs where id = :id")
+    suspend fun deleteFromApplied(id: String)
+
+    @Query("select exists(select 1 from applied_jobs where id = :id)")
+    suspend fun isInApplied(id: String): Boolean
+
+    @Query("""
+        select applied_jobs.*,
+        case when saved_jobs.id is not null then 1 else 0 end as isSaved,
+        1 as isApplied,
+        applied_jobs.applied_time as appliedTime
+        from applied_jobs
+        left join saved_jobs on saved_jobs.id = applied_jobs.id
+    """)
+    fun getAppliedJobs(): LiveData<List<JobUIModel>>
 
     @Transaction
     suspend fun clearAndInsertJobs(jobList: List<Job>) {
         clearDB()
         insertJobs(jobList)
     }
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs)
+
+    @Query("select shared_jobs_table.* from shared_jobs_table where id = :sharedId")
+    fun getSharedJobById(sharedId: String): LiveData<JobUIModel>
 
 }

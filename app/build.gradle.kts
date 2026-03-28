@@ -88,4 +88,7 @@ dependencies {
 
     // Процессор аннотаций (используем KSP)
     ksp("androidx.room:room-compiler:$roomVersion")
+
+    //Зависимость для SpringAnimation
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 }

@@ -6,9 +6,11 @@ import com.example.jobfinderapp.utils.CountryCode
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.network.RetrofitService
 import com.example.jobfinderapp.data.dao.JobDao
+import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
-import com.example.jobfinderapp.data.entity.JobWithSaved
+import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.SavedJob
+import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
 import retrofit2.Response
 import javax.inject.Inject
@@ -17,6 +19,7 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
 
     override suspend fun getJobsFromApi(): Response<JobDTO> =
         api.getGeneralList(CountryCode.GREAT_BRITAIN.code, 1, ApiConst.APP_ID, ApiConst.API_KEY)
+
 
     override suspend fun getFilteredJobsFromApi(jobFilter: JobFilter, page: Int): Response<JobDTO> =
         api.getFilteredList(
@@ -41,15 +44,23 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         )
 
 
-    override val jobsWithSaved = jobDao.jobsWithSaved()
+    override val jobsUIModel = jobDao.jobsUIModel()
     override val savedJobs = jobDao.getSavedJobs()
-
+    override val appliedJobs = jobDao.getAppliedJobs()
 
     override suspend fun toggleSaved(job: Job) {
         if (jobDao.isInSaved(job.id)) {
             jobDao.deleteFromSaved(job.id)
         } else {
             jobDao.insertToSaved(SavedJob(job))
+        }
+    }
+
+    override suspend fun toggleApplied(appliedJob: AppliedJob) {
+        if (jobDao.isInApplied(appliedJob.job.id)) {
+            jobDao.deleteFromApplied(appliedJob.job.id)
+        } else {
+            jobDao.insertToApplied(appliedJob)
         }
     }
 
@@ -65,8 +76,19 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         jobDao.clearAndInsertJobs(jobs)
     }
 
-    override fun getJobById(id: String): LiveData<JobWithSaved?> {
+    override fun getJobById(id: String): LiveData<JobUIModel?> {
         return jobDao.getJobById(id)
+    }
+
+    override suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs) {
+        jobDao.insertToSharedJobsTable(sharedJobs)
+    }
+
+    override fun getSharedJob(sharedId: String): LiveData<JobUIModel> =
+        jobDao.getSharedJobById(sharedId)
+
+    override suspend fun deleteFromApplied(jobID: String) {
+        jobDao.deleteFromApplied(jobID)
     }
 
 }

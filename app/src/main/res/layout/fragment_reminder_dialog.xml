@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".views.fragments.ReminderDialogFragment"
+    android:background="@drawable/bg_job_item"
+    android:padding="20dp"
+    android:layout_margin="20dp">
+
+    <TextView
+        android:id="@+id/rem_di_tittle_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tittle"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/rem_di_et_lay"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        style="style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+        android:layout_marginTop="6dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rem_di_tittle_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:hintMaxLines="1"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_input_et"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:hint="@string/e_g_follow_up_on_application"
+            android:maxLength="80"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/rem_di_message_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/message"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rem_di_et_lay"
+        android:layout_marginTop="12dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/rem_di_et_message_lay"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        style="style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+        android:layout_marginTop="6dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rem_di_message_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:hintMaxLines="1"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_input_et_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:hint="@string/add_notes_about_this_reminder"
+            android:gravity="start"
+            android:inputType="textMultiLine"
+            android:lines="4"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideInset"
+            android:overScrollMode="always"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/rem_di_date_time_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reminder_date_amp_time"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rem_di_et_message_lay"
+        android:layout_marginTop="12dp" />
+
+    <LinearLayout
+        android:id="@+id/date_time_pickers_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rem_di_date_time_tv"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rem_di_et_date_lay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+            app:hintMaxLines="1"
+            android:layout_weight="1"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded"
+            android:layout_marginEnd="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_input_et_date"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:hint="@string/pick_date"
+                android:gravity="center_vertical"
+                android:drawableStart="@drawable/icon_calendar"
+                android:drawableTint="@color/grey_bot_menu"
+                android:drawablePadding="8dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:inputType="none"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rem_di_et_time_lay"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+            app:hintMaxLines="1"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MyRounded">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_input_et_time"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:hint="@string/pick_time"
+                android:gravity="center_vertical"
+                android:drawableStart="@drawable/icon_clock"
+                android:drawableTint="@color/grey_bot_menu"
+                android:drawablePadding="8dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/rem_di_cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:layout_constraintTop_toBottomOf="@id/date_time_pickers_lay"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/cancel"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:textColor="@color/det_location_icon"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/grey_bot_menu"
+        android:layout_marginStart="24dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingStart="35dp"
+        android:paddingEnd="35dp"
+        app:cornerRadius="12dp"
+        android:textSize="16sp"
+        android:backgroundTint="@android:color/transparent"
+        app:rippleColor="@color/light_red" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/rem_di_create_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/date_time_pickers_lay"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/create"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:textColor="@color/text_color_enabled_selector"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingStart="35dp"
+        android:paddingEnd="35dp"
+        android:enabled="false"
+        android:layout_marginEnd="24dp"
+        app:cornerRadius="12dp"
+        android:textSize="16sp"
+        app:rippleColor="@color/light_blue_pr_darker" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

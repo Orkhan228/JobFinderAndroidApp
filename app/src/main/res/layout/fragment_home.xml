@@ -25,7 +25,7 @@
             android:paddingEnd="14dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:background="@color/white">
+            android:background="@color/app_bar_bg">
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/hf_search_view"
@@ -74,7 +74,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/light_grey"
+            android:background="@color/very_light_grey"
             app:layout_scrollFlags="scroll|enterAlways"/>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -180,7 +180,6 @@
         android:layout_width="match_parent"
         android:paddingTop="10dp"
         android:clipToPadding="false"
-        android:layoutAnimation="@anim/lay_anim_from_bot"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:visibility="gone" />

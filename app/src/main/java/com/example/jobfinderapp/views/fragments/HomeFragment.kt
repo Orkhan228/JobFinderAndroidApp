@@ -2,6 +2,7 @@ package com.example.jobfinderapp.views.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.transition.AutoTransition
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
@@ -21,6 +23,11 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeClipBounds
+import androidx.transition.ChangeTransform
+import androidx.transition.Fade
+import androidx.transition.TransitionSet
 import com.example.jobfinderapp.App
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 import com.example.jobfinderapp.entity.JobFilter
@@ -29,6 +36,7 @@ import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.FragmentHomeBinding
 import com.example.jobfinderapp.entity.Country
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
+import com.example.jobfinderapp.views.activities.MainActivity
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,8 +45,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private val hfViewModel: HomeFragViewModel by activityViewModels()
-
-    private var didRunEnterAnimationForRv = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,12 +84,13 @@ class HomeFragment : Fragment() {
         }
 
         //Open filter modal bottom sheet
-        //переделать на переход через navController
         binding.hfFilterBtn.setOnClickListener {
             //Тут происходит проверка, если есть такой фрагмент с определенным тэгом, то не надо создавать еще один.
-            if (childFragmentManager.findFragmentByTag(FILTER_FRAGMENT_TAG) == null) {
-                val filterBotSheet = FilterBottomSheet()
-                filterBotSheet.show(childFragmentManager, FILTER_FRAGMENT_TAG)
+            //Когда переделал на переход через navController, в графе поставил настройки запуска как singleTop
+            if (findNavController().currentDestination?.id == R.id.homeFragment) {
+                val action = HomeFragmentDirections.actionHomeFragmentToFilterBottomSheetFragment()
+
+                (activity as MainActivity).hideBotNavViewExclusive { findNavController().navigate(action) }
             }
         }
 
@@ -93,8 +100,6 @@ class HomeFragment : Fragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 println("!!! textSubmit")
 
-                if (query.isNullOrBlank()) return true
-
                 hfViewModel.onSearchKeyWordsChanged(query)
 
                 binding.hfSearchView.clearFocus()
@@ -103,6 +108,12 @@ class HomeFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 println("!!! textChange")
+
+                if (newText.isNullOrEmpty()) {
+                    hfViewModel.onSearchKeyWordsChanged(newText)
+                    binding.hfSearchView.clearFocus()
+                }
+
                 return true
             }
 
@@ -124,6 +135,7 @@ class HomeFragment : Fragment() {
         binding.hfRecyclerView.adapter = jobAdapter
         binding.hfRecyclerView.addItemDecoration(itemDec)
 
+        postponeEnterTransition()
 
         //подписка на изменения списка работ. Так как работаем c ListAdapter, то список обновляем через submitList
         hfViewModel.jobsUIModel.observe(viewLifecycleOwner) { jobUIModelList ->
@@ -136,9 +148,8 @@ class HomeFragment : Fragment() {
             binding.hfRecyclerView.isVisible = !isEmpty
 
             jobAdapter.submitList(jobUIModelList) {
-                if (!didRunEnterAnimationForRv) {
-                    binding.hfRecyclerView.scheduleLayoutAnimation()
-                    didRunEnterAnimationForRv = true
+                binding.hfRecyclerView.doOnPreDraw {
+                    startPostponedEnterTransition()
                 }
             }
 
@@ -182,7 +193,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun openDetails(jobUIModel: JobUIModel, v: View) {
-        val trName = "job_title${jobUIModel.job.title}"
+        val trName = "job_title${jobUIModel.job.id}"
 
         val extras = FragmentNavigatorExtras(v to trName)
 
@@ -235,8 +246,10 @@ class HomeFragment : Fragment() {
 
                     true
                 }
+
+                else -> false
             }
-            false
+
         }
     }
 

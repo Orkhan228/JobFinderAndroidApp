@@ -20,7 +20,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
-        android:textColor="@color/black"
+        android:textColor="@color/main_text_color"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginTop="4dp"
@@ -37,10 +37,9 @@
         android:paddingStart="12dp"
         android:paddingTop="5dp"
         android:paddingBottom="10dp"
-        android:src="@drawable/icon_saved_job_item"
+        android:src="@drawable/selector_drawable_saved_adapter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:stateListAnimator="@animator/anim_selec_saved_btn"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/job_company_name_tv"

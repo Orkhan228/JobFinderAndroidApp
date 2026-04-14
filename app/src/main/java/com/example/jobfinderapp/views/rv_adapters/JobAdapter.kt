@@ -1,6 +1,8 @@
 package com.example.jobfinderapp.views.rv_adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
@@ -31,36 +33,44 @@ class JobAdapter(private val onClick: (JobUIModel, View) -> Unit, private val on
             binding.contractTypeTv.text = jobItem.job.contract_type
             binding.jobDescriptionTv.text = jobItem.job.description
 
-            binding.jobSavedIv.setOnClickListener {
-                onFavClick(jobItem)
+            binding.jobSavedIv.setOnClickListener { v ->
+                v.animate().cancel()
 
-                it.animate()
-                    .rotationBy(-12f)
-                    .setDuration(60)
+                v.animate()
+                    .scaleX(0.82f)
+                    .scaleY(0.82f)
+                    .rotation(-8f)
+                    .setDuration(70)
                     .withEndAction {
-                        it.animate()
-                            .rotationBy(24f)
-                            .setDuration(120)
+                        v.animate()
+                            .scaleX(1.15f)
+                            .scaleY(1.15f)
+                            .rotation(8f)
+                            .setDuration(110)
                             .withEndAction {
-                                it.animate()
-                                    .rotationBy(-12f)
-                                    .setDuration(60)
-                                    .start()
-                            }.start()
-                    }.start()
+                                onFavClick(jobItem)
+                                v.animate()
+                                    .scaleX(1f)
+                                    .scaleY(1f)
+                                    .rotation(0f)
+                                    .setDuration(90)
+                                    .withEndAction {
 
+                                    }
+                                    .start()
+                            }
+                            .start()
+                    }
+                    .start()
             }
 
-            binding.jobSavedIv.setImageResource(
-                if (jobItem.isSaved) R.drawable.baseline_bookmark_24
-                else R.drawable.icon_light_darker_bookmark
-            )
+            binding.jobSavedIv.isSelected = jobItem.isSaved
 
             binding.root.setOnClickListener {
                 onClick(jobItem, binding.jobItemRoot)
             }
 
-            ViewCompat.setTransitionName(binding.jobItemRoot, "job_title${jobItem.job.title}")
+            ViewCompat.setTransitionName(binding.jobItemRoot, "job_title${jobItem.job.id}")
         }
     }
   

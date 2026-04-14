@@ -21,7 +21,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
-        android:textColor="@color/black"
+        android:textColor="@color/main_text_color"
         android:textSize="17sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/applied_badge_lay"
@@ -169,9 +169,9 @@
     <View
         android:id="@+id/applied_divider_view"
         android:layout_width="0dp"
-        android:layout_height="0.8dp"
+        android:layout_height="1dp"
         android:layout_marginTop="16dp"
-        android:background="@color/light_grey"
+        android:background="@color/very_light_grey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/applied_salary_tv" />
@@ -209,9 +209,9 @@
     <View
         android:id="@+id/applied_divider_view_1"
         android:layout_width="0dp"
-        android:layout_height="0.8dp"
+        android:layout_height="1dp"
         android:layout_marginTop="8dp"
-        android:background="@color/light_grey"
+        android:background="@color/very_light_grey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/applied_posted_time_tv" />

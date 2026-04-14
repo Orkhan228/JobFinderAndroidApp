@@ -6,6 +6,7 @@ import com.example.jobfinderapp.data.AppRepository
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
+import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
 import retrofit2.Response
@@ -42,7 +43,36 @@ class InterActor @Inject constructor(private val repo: AppRepository) {
 
     suspend fun clearDB() = repo.clearDB()
 
-    suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs) = repo.insertToSharedJobsTable(sharedJobs)
 
+
+    suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs) = repo.insertToSharedJobsTable(sharedJobs)
+    suspend fun deleteFromSharedTable(sharedJobs: SharedJobs) = repo.deleteFromSharedTable(sharedJobs)
+    suspend fun getSharedJobByIdOnce(sharedId: String) = repo.getSharedJobByIdOnce(sharedId)
     fun getSharedJobById(sharedId: String) = repo.getSharedJob(sharedId)
+
+
+
+
+    suspend fun insertToReminders(reminderEntity: ReminderEntity): Long {
+        return repo.insertToReminders(reminderEntity)
+    }
+
+    suspend fun deleteFromReminders(reminderEntity: ReminderEntity) {
+        repo.deleteFromReminders(reminderEntity)
+    }
+
+    suspend fun updateReminderInTable(reminderEntity: ReminderEntity) {
+        repo.updateReminderInTable(reminderEntity)
+    }
+
+    suspend fun getRemindersListByJobIdOnce(jobId: String): List<ReminderEntity> =
+        repo.getRemindersListByJobIdOnce(jobId)
+
+    fun getFromRemindersAll(): LiveData<List<ReminderEntity>> {
+        return repo.getFromRemindersAll()
+    }
+
+    fun getFromRemindersByJobID(jobID: String): LiveData<List<ReminderEntity>> {
+        return repo.getFromRemindersByJobID(jobID)
+    }
 }

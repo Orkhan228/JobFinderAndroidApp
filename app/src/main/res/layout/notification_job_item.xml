@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bg_root_notification_item"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
+
+    <ImageView
+        android:id="@+id/not_job_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_business_center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/light_grey_darker" />
+
+    <TextView
+        android:id="@+id/not_job_tv_rem_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/not_job_iv"
+        app:layout_constraintEnd_toStartOf="@id/not_job_edit_btn"
+        app:layout_constraintTop_toTopOf="@id/not_job_iv"
+        app:layout_constraintBottom_toBottomOf="@id/not_job_iv"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/main_text_color"
+        android:textStyle="bold"
+        tools:text="Reminder Title"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="16dp"/>
+
+    <TextView
+        android:id="@+id/not_job_tv_rem_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/not_job_iv"
+        app:layout_constraintTop_toBottomOf="@id/not_job_iv"
+        app:layout_constraintEnd_toStartOf="@id/not_job_edit_btn"
+        app:layout_constraintBottom_toTopOf="@id/not_job_overdue_btn"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        tools:text="Reminder Message very Important ;dfjffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:textSize="16sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/not_job_overdue_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/not_job_tv_rem_message"
+        app:layout_constraintStart_toStartOf="@id/not_job_iv"
+        android:layout_marginTop="16dp"
+        android:text="@string/overdue"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:icon="@drawable/icon_calendar"
+        app:iconGravity="textStart"
+        app:iconTint="@color/light_red_darker"
+        android:textSize="13sp"
+        android:backgroundTint="@color/linen_red_darker"
+        android:textColor="@color/light_red_darker"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/not_job_edit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/not_job_delete_btn"
+        android:src="@drawable/icon_edit_grey"
+        app:tint="@color/light_blue_pr"
+        android:background="@drawable/bg_not_job_edit_btn"
+        android:layout_marginEnd="14dp" />
+
+
+    <ImageButton
+        android:id="@+id/not_job_delete_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/icon_delete_grey"
+        app:tint="@color/light_red"
+        android:background="@drawable/bg_not_job_delete_btn" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,13 +2,16 @@ package com.example.jobfinderapp.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
+import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
 
@@ -82,7 +85,37 @@ interface JobDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs)
 
+    @Delete
+    suspend fun deleteFromSharedTable(sharedJobs: SharedJobs)
+
     @Query("select shared_jobs_table.* from shared_jobs_table where id = :sharedId")
     fun getSharedJobById(sharedId: String): LiveData<JobUIModel>
 
+    @Query("select shared_jobs_table.* from shared_jobs_table where id = :sharedId limit 1")
+    suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel?
+
+
+
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertToReminderTable(reminderEntity: ReminderEntity): Long
+
+    @Delete
+    suspend fun deleteFromReminderTable(reminderEntity: ReminderEntity)
+
+    @Update
+    suspend fun updateReminderInTable(reminderEntity: ReminderEntity)
+
+    @Query("select reminder_table.* from reminder_table")
+    fun getFromReminderTable(): LiveData<List<ReminderEntity>>
+
+    @Query("select reminder_table.* from reminder_table where job_id = :jobId order by trigger_time asc")
+    fun getFromReminderTableByJobID(jobId: String): LiveData<List<ReminderEntity>>
+
+    @Query("select reminder_table.* from reminder_table order by trigger_time asc")
+    suspend fun getRemindersListByOnce(): List<ReminderEntity>
+
+    @Query("select reminder_table.* from reminder_table where job_id = :jobId limit 1")
+    suspend fun getRemindersListByJobIdOnce(jobId: String): List<ReminderEntity>
 }

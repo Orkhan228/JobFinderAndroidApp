@@ -17,6 +17,7 @@ import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.entity.Company
 import com.example.jobfinderapp.entity.Location
 import com.example.jobfinderapp.entity.Result
+import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,19 +30,40 @@ class HomeFragViewModel : ViewModel() {
     @Inject
     lateinit var networkMonitor: NetworkMonitor
 
+    @Inject
+    lateinit var appPrefs: AppPrefs
+
     //DB
     val jobsUIModel by lazy { interActor.getJobsUIModelDB() }
 
-    //
     private var wasOffline = false
 
-    private val _filter = MutableLiveData<JobFilter>(createDefaultFilter())
+    //текущий фильтр
+    private val _filter = MutableLiveData<JobFilter>()
     val filter: LiveData<JobFilter> = _filter
 
+    //состояние интернета
     private val _internetState = MutableLiveData<Boolean>()
     val internetState: LiveData<Boolean> = _internetState
 
+    //переменные для подписки на изменения выбора страны из настроек через sharedPref
+    private val selectedCountryLiveData by lazy { appPrefs.observeSelectedCountry() }
+    private val selectedCountryObserver = Observer<String> { newCountryCode ->
+        val currentFilter = _filter.value ?: createDefaultFilter()
 
+        if (currentFilter.country.code != newCountryCode) {
+            val updatedFilter = currentFilter.copy(
+                country = Country(
+                    getCountryNameByCode(newCountryCode),
+                    newCountryCode
+                ),
+                locations = emptyList()
+            )
+
+            _filter.value = updatedFilter
+            loadFilteredJobList(updatedFilter)
+        }
+    }
 
     //Создаем liveData от другого liveData, посредством map, в сравнение не берем такие параметры как, locations и searchKeyWords
     val filterState = _filter.map { current ->
@@ -53,6 +75,9 @@ class HomeFragViewModel : ViewModel() {
 
         isBaseChanged || hasUserLocations
     }
+
+    private val _hasPendingFilterChanges = MutableLiveData(false)
+    val hasPendingFilterChanges: LiveData<Boolean> = _hasPendingFilterChanges
 
     //State for pagination
     var isLoading = false
@@ -85,20 +110,36 @@ class HomeFragViewModel : ViewModel() {
     init {
         App.instance.appComponent.inject(this)
 
-        loadFilteredJobList(createDefaultFilter())
+        val initialFilter = createDefaultFilter()
+        _filter.value = initialFilter
+        loadFilteredJobList(initialFilter)
 
         _filterBadgeCount.addSource(_isFilterInstalled) { updateBadge() }
         _filterBadgeCount.addSource(filter) { updateBadge() }
 
         networkMonitor.isConnected.observeForever(networkObserver)
+        selectedCountryLiveData.observeForever(selectedCountryObserver)
     }
 
 
+    private fun createDefaultFilter(): JobFilter {
+        val countryCode = appPrefs.getSelectedCountry()
+        val countryName = getCountryNameByCode(countryCode)
 
-    private fun createDefaultFilter() =
-        JobFilter(
-            country = Country("Great Britain", "gb")
+        return JobFilter(
+            country = Country(countryName, countryCode)
         )
+    }
+
+    fun getCountryNameByCode(countryCode: String): String =
+        JobCountries.countriesMapNorm[countryCode] ?: "Great Britain"
+
+    fun applyFilter() {
+        val filter = _filter.value ?: return
+        loadFilteredJobList(filter)
+        _hasPendingFilterChanges.value = false
+    }
+
 
     fun installFilter(isInstalled: Boolean) {
         _isFilterInstalled.value = isInstalled
@@ -120,26 +161,31 @@ class HomeFragViewModel : ViewModel() {
     fun onFullTimeChecked(checked: Boolean) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(onlyFullTime = checked)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onPartTimeChecked(checked: Boolean) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(onlyPartTime = checked)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onContractChecked(checked: Boolean) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(onlyContractJobs = checked)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onPermanentChecked(checked: Boolean) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(onlyPermanentJobs = checked)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onCategoryChecked(category: Category) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(category = category)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onLocationChecked(locations: List<String>) {
@@ -148,6 +194,7 @@ class HomeFragViewModel : ViewModel() {
         if (curr.locations == locations) return
 
         _filter.value = curr.copy(locations = locations)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onCountryChanged(country: Country) {
@@ -156,20 +203,30 @@ class HomeFragViewModel : ViewModel() {
         if (curr.country.code == country.code) return
 
         _filter.value = curr.copy(country = country)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onSortByChecked(checked: Boolean) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(sortBy = checked)
+        _hasPendingFilterChanges.value = true
     }
 
     fun onSortDirChanged(sortDir: String) {
         val curr = _filter.value ?: return
         _filter.value = curr.copy(sortDirection = sortDir)
+        _hasPendingFilterChanges.value = true
     }
 
-    fun onSearchKeyWordsChanged(words: String) {
+    fun onSearchKeyWordsChanged(words: String?) {
         val curr = _filter.value ?: return
+
+        if (words == null) {
+            val newFilter = curr.copy(searchKeyWords = words)
+            _filter.value = newFilter
+
+            loadFilteredJobList(newFilter)
+        }
 
         if (curr.searchKeyWords != words) {
             val newFilter = curr.copy(searchKeyWords = words)
@@ -202,6 +259,8 @@ class HomeFragViewModel : ViewModel() {
         _filter.value = createDefaultFilter()
         lastAppliedFilter = createDefaultFilter()
         loadFilteredJobList(lastAppliedFilter ?: createDefaultFilter())
+
+        _hasPendingFilterChanges.value = false
     }
 
     private fun loadPage(filter: JobFilter) {
@@ -344,6 +403,7 @@ class HomeFragViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         networkMonitor.isConnected.removeObserver(networkObserver)
+        selectedCountryLiveData.removeObserver(selectedCountryObserver)
     }
 
 }

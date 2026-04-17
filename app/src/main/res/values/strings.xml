@@ -49,4 +49,24 @@
     <string name="there_are_no_results_for_your_search">There are no results for your search</string>
     <string name="try_changing_filters_or_entering_a_different_word">Try changing filters or entering a different word</string>
     <string name="application_submitted_successfully">Application submitted successfully!</string>
+    <string name="no_reminders_yet">No Reminders Yet</string>
+    <string name="create_reminders_on_job_detail_pages_to_keep_track_of_important_dates">Create reminders on job detail pages to keep track of important dates</string>
+    <string name="reminders">Reminders</string>
+    <string name="tittle">Title</string>
+    <string name="e_g_follow_up_on_application">e.g., Follow up on application</string>
+    <string name="message">Message</string>
+    <string name="add_notes_about_this_reminder">Add notes about this reminder...</string>
+    <string name="reminder_date_amp_time"><![CDATA[Reminder Date & Time]]></string>
+    <string name="pick_date">Pick Date</string>
+    <string name="pick_time">Pick Time</string>
+    <string name="create">Create</string>
+    <string name="no_reminders_set_for_this_job">No reminders set for this job</string>
+    <string name="overdue">Overdue</string>
+    <string name="preferences">Preferences</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="no_reminders">No reminders</string>
+    <string name="reminder">reminder</string>
+    <string name="select_country_01">Select Country</string>
+    <string name="disabled">Disabled</string>
+    <string name="enabled">Enabled</string>
 </resources>

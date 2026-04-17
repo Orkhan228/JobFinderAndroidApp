@@ -9,13 +9,16 @@ import com.example.jobfinderapp.data.dao.JobDao
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
+import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
+import com.example.jobfinderapp.utils.AlarmScheduler
 import retrofit2.Response
 import javax.inject.Inject
 
-class MainRepository @Inject constructor(private val api: RetrofitService, private val jobDao: JobDao) : AppRepository {
+class MainRepository @Inject constructor(private val api: RetrofitService, private val jobDao: JobDao,
+    private val alarmScheduler: AlarmScheduler) : AppRepository {
 
     override suspend fun getJobsFromApi(): Response<JobDTO> =
         api.getGeneralList(CountryCode.GREAT_BRITAIN.code, 1, ApiConst.APP_ID, ApiConst.API_KEY)
@@ -44,6 +47,7 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         )
 
 
+    //MAIN table
     override val jobsUIModel = jobDao.jobsUIModel()
     override val savedJobs = jobDao.getSavedJobs()
     override val appliedJobs = jobDao.getAppliedJobs()
@@ -64,6 +68,10 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         }
     }
 
+    override suspend fun deleteFromApplied(jobID: String) {
+        jobDao.deleteFromApplied(jobID)
+    }
+
     override suspend fun refreshJobs(jobs: List<Job>) {
         jobDao.insertJobs(jobs)
     }
@@ -80,15 +88,57 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         return jobDao.getJobById(id)
     }
 
+
+
+    //SHARED table
     override suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs) {
         jobDao.insertToSharedJobsTable(sharedJobs)
+    }
+
+    override suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel? =
+        jobDao.getSharedJobByIdOnce(sharedId)
+
+
+    override suspend fun deleteFromSharedTable(sharedJobs: SharedJobs) {
+        jobDao.deleteFromSharedTable(sharedJobs)
     }
 
     override fun getSharedJob(sharedId: String): LiveData<JobUIModel> =
         jobDao.getSharedJobById(sharedId)
 
-    override suspend fun deleteFromApplied(jobID: String) {
-        jobDao.deleteFromApplied(jobID)
+
+
+
+    //REMINDERS table
+    override suspend fun insertToReminders(reminderEntity: ReminderEntity): Long {
+        val id = jobDao.insertToReminderTable(reminderEntity)
+        val savedReminder = reminderEntity.copy(id = id)
+        alarmScheduler.schedule(savedReminder)
+        return id
     }
 
+    override suspend fun deleteFromReminders(reminderEntity: ReminderEntity) {
+        alarmScheduler.cancel(reminderEntity)
+        jobDao.deleteFromReminderTable(reminderEntity)
+    }
+
+    override suspend fun updateReminderInTable(reminderEntity: ReminderEntity) {
+        alarmScheduler.cancel(reminderEntity)
+        jobDao.updateReminderInTable(reminderEntity)
+        alarmScheduler.schedule(reminderEntity)
+    }
+
+    override suspend fun getRemindersListByOnce(): List<ReminderEntity> =
+        jobDao.getRemindersListByOnce()
+
+    override suspend fun getRemindersListByJobIdOnce(jobId: String): List<ReminderEntity> =
+        jobDao.getRemindersListByJobIdOnce(jobId)
+
+    override fun getFromRemindersAll(): LiveData<List<ReminderEntity>> {
+        return jobDao.getFromReminderTable()
+    }
+
+    override fun getFromRemindersByJobID(jobID: String): LiveData<List<ReminderEntity>> {
+        return jobDao.getFromReminderTableByJobID(jobID)
+    }
 }

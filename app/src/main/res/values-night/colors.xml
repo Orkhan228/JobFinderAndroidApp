@@ -1,0 +1,62 @@
+<resources>
+    <!-- Base -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- 🔵 MAIN BACKGROUND -->
+    <color name="main_bg_color">#0F172A</color>
+
+    <!-- 🔹 Surfaces / Cards -->
+    <color name="category_bg">#1B263B</color>
+    <color name="det_salary_bg">#162A4D</color>
+    <color name="det_salary_stroke">#223A5E</color>
+    <color name="det_location_bg">#1E293B</color>
+    <color name="applied_no_bg">#1F2A3A</color>
+    <color name="withdraw_bg_btn">#2A3444</color>
+    <color name="withdraw_bg_btn_darker">#3A4658</color>
+    <color name="app_bar_bg">#1B263B</color>
+    <color name="main_text_color">#FFFFFF</color>
+
+    <!-- 🔤 Text / Icons -->
+    <color name="grey_bot_menu">#8FA1B8</color>
+    <color name="light_grey">#D6DEEA</color>
+    <color name="light_grey_darker">#A7B3C4</color>
+    <color name="light_grey_saved">#91A0B5</color>
+    <color name="det_location_icon">#C7D0DD</color>
+    <color name="applied_no_icon">#90A0B7</color>
+    <color name="withdraw_text_btn">#E7EDF5</color>
+    <color name="grey_blue_darker">#B6C2D1</color>
+    <color name="very_light_grey">#263041</color>
+    <color name="secondary_icon_color">#D6DEEA</color>
+
+    <!-- 🔵 PRIMARY -->
+    <color name="light_blue_pr">#3B82F6</color>
+    <color name="light_blue_pr_darker">#2563EB</color>
+    <color name="very_light_blue_pr">#1A2B4A</color>
+
+    <!-- 🟢 GREEN -->
+    <color name="light_green_pr">#14B8A6</color>
+    <color name="very_light_green_pr">#183B3A</color>
+    <color name="success_green">#22C55E</color>
+
+    <!-- 🔴 RED -->
+    <color name="light_red">#FF5C5C</color>
+    <color name="light_red_darker">#E5484D</color>
+    <color name="dark_red">#FF6B6B</color>
+    <color name="linen_red">#3B2024</color>
+    <color name="linen_red_darker">#5A2D33</color>
+
+    <!-- 🟣 CATEGORY / PURPLE -->
+    <color name="category_text">#B692F6</color>
+    <color name="purple">#A855F7</color>
+    <color name="purple_light">#2C1F46</color>
+
+    <!-- 🟠 ORANGE -->
+    <color name="orange">#F59E0B</color>
+    <color name="orange_dark">#3A2B16</color>
+
+    <!-- 🟦 TURQUOISE -->
+    <color name="turquoise">#22C5C5</color>
+    <color name="turquoise_light">#183C3C</color>
+
+</resources>

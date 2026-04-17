@@ -3,5 +3,5 @@
     <dimen name="dimenForRVItems">10dp</dimen>
     <dimen name="dimenForRVItemsSide">20dp</dimen>
     <dimen name="rvExtraPadding">100dp</dimen>
-
+    <dimen name="remindersRVPaddingSides">8dp</dimen>
 </resources>

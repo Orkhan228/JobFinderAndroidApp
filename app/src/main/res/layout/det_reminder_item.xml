@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bg_det_reminder_root"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/det_reminder_item_r_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Reminder name"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/det_reminder_item_r_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/det_reminder_item_r_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/det_reminder_item_iv"
+        tools:text="Reminder desc"
+        android:layout_marginBottom="12dp"
+        android:textSize="13sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance" />
+
+    <ImageView
+        android:id="@+id/det_reminder_item_iv"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
+        android:src="@drawable/icon_calendar"
+        app:tint="@color/light_blue_pr"
+        app:layout_constraintTop_toBottomOf="@id/det_reminder_item_r_description"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/det_reminder_item_r_calendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/det_reminder_item_iv"
+        app:layout_constraintBottom_toBottomOf="@id/det_reminder_item_iv"
+        app:layout_constraintStart_toEndOf="@id/det_reminder_item_iv"
+        android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+        android:textColor="@color/light_blue_pr"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginStart="6dp"
+        tools:text="Dec 30, 2026, 10:59" />
+
+    <ImageButton
+        android:id="@+id/det_reminder_item_btn_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/det_reminder_item_iv"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:src="@drawable/icon_edit_grey"
+        android:background="@drawable/bg_reminder_item_edit_btn"
+        android:padding="8dp"
+        app:tint="@color/grey_blue_darker" />
+
+    <ImageButton
+        android:id="@+id/det_reminder_item_btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/det_reminder_item_btn_edit"
+        app:layout_constraintStart_toEndOf="@+id/det_reminder_item_btn_edit"
+        android:layout_marginStart="12dp"
+        android:src="@drawable/icon_delete_grey"
+        android:background="@drawable/bg_reminder_item_delete_btn"
+        android:padding="8dp"
+        app:tint="@color/white" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

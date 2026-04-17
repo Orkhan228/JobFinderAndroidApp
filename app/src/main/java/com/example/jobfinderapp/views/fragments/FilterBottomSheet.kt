@@ -1,5 +1,6 @@
 package com.example.jobfinderapp.views.fragments
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,8 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
@@ -16,6 +19,7 @@ import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentFilterModalBotBinding
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
+import com.example.jobfinderapp.views.activities.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -31,7 +35,6 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
         binding = FragmentFilterModalBotBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -49,6 +52,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         val bottomSheet =
             dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
 
+
         bottomSheet?.let {
             val behavior = BottomSheetBehavior.from(it)
 
@@ -58,6 +62,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             // Ограничиваем высоту, например 85% экрана
             val height = (resources.displayMetrics.heightPixels * 0.85).toInt()
             it.layoutParams.height = height
+
         }
 
     }
@@ -183,16 +188,13 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         }
 
         binding.filterSearchBtn.setOnClickListener {
+            if (binding.filterSearchBtn.isEnabled) {
+                viewModel.installFilter(true)
 
-            if (!binding.filterSearchBtn.isEnabled) return@setOnClickListener
+                viewModel.applyFilter()
 
-            viewModel.installFilter(true)
-
-            viewModel.filter.value?.let {
-                viewModel.loadFilteredJobList(it)
+                dismiss()
             }
-
-            dismiss()
         }
 
         binding.filterClearBtn.setOnClickListener {
@@ -202,10 +204,11 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
 
 
         viewModel.filterState.observe(viewLifecycleOwner) { isShown ->
-            binding.filterSearchBtn.isEnabled = isShown
-
-
             animateClearBtn(isShown)
+        }
+
+        viewModel.hasPendingFilterChanges.observe(viewLifecycleOwner) { hasChanges ->
+            binding.filterSearchBtn.isEnabled = hasChanges
         }
     }
 
@@ -243,7 +246,6 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
                 .withEndAction { clearLay.visibility = View.GONE }
                 .start()
         }
-
     }
 
 }

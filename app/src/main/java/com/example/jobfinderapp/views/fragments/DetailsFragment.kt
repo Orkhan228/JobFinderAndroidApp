@@ -1,9 +1,17 @@
 package com.example.jobfinderapp.views.fragments
 
+import android.Manifest
+import android.app.AlarmManager
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Typeface
+import android.icu.util.Calendar
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
@@ -11,28 +19,37 @@ import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.AutoTransition
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeClipBounds
 import androidx.transition.ChangeTransform
 import androidx.transition.Fade
 import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.data.entity.JobUIModel
+import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.databinding.FragmentDetailsBinding
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.viewModels.DetailsFragmentViewModel
+import com.example.jobfinderapp.views.rv_adapters.ReminderAdapter
+import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
+import androidx.core.net.toUri
 
 class DetailsFragment : Fragment() {
 
@@ -47,6 +64,13 @@ class DetailsFragment : Fragment() {
     private var currentJob: JobUIModel? = null
     private var jobIdFromDeepLink: String = ""
 
+    private var backCallback: OnBackPressedCallback? = null
+
+    private lateinit var reminderAdapter: ReminderAdapter
+    private var observedReminderJobId: String? = null
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,19 +78,25 @@ class DetailsFragment : Fragment() {
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
             .addTransition(ChangeClipBounds())
+            .excludeTarget(R.id.det_toolbar, true)
 
         sharedElementReturnTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
             .addTransition(ChangeClipBounds())
+            .excludeTarget(R.id.det_toolbar, true)
 
         enterTransition = Slide(Gravity.BOTTOM).apply {
             addTarget(R.id.det_location_info_lay)
             addTarget(R.id.det_inf_about_role_lay)
             addTarget(R.id.det_applied_job_lay)
+            excludeTarget(R.id.det_toolbar, true)
         }
 
-        returnTransition = Fade(Fade.OUT)
+        returnTransition = Fade(Fade.MODE_OUT).apply {
+            excludeTarget(R.id.det_toolbar, true)
+        }
+
     }
 
     override fun onCreateView(
@@ -77,8 +107,14 @@ class DetailsFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.detAppBarLay.apply {
+            visibility = View.VISIBLE
+            alpha = 1f
+        }
 
         animateApplyBtn()
 
@@ -96,6 +132,20 @@ class DetailsFragment : Fragment() {
             WindowInsetsCompat.CONSUMED
         }
 
+        backCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                binding.detAppBarLay.animate().cancel()
+                binding.detAppBarLay.visibility = View.GONE
+                binding.detAppBarDivider.visibility = View.GONE
+                isEnabled = false
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCallback!!)
+
+        setupToolbar()
+
         currentJob = args.jobUIModel
         jobIdFromDeepLink = args.jobId.toString()
 
@@ -104,8 +154,57 @@ class DetailsFragment : Fragment() {
         }
 
         if (currentJob == null && jobIdFromDeepLink.isNotEmpty()) {
-            viewModel.getSharedJobById(jobIdFromDeepLink).observe(viewLifecycleOwner) {
-                viewModel.insertToJobsContainer(it)
+            viewModel.getSharedJobByJobIdOnce(jobIdFromDeepLink)
+        }
+
+        setReminderRecycler()
+
+        binding.detReminderCreateBtn.setOnClickListener {
+            if (ensureExactAlarmPermission()) {
+                requestNotificationPermissionIfNeeded()
+                val action = DetailsFragmentDirections.actionDetailsFragmentToReminderDialogFragment()
+
+                findNavController().navigate(action)
+            }
+        }
+
+        setFragmentResultListener(ReminderDialogFragment.REQUEST_KEY) { _, bundle ->
+
+            val reminderID = bundle.getLong(ReminderDialogFragment.BUNDLE_ID)
+            val isEdit = bundle.getBoolean(ReminderDialogFragment.BUNDLE_IS_EDIT)
+
+            val title = bundle.getString(ReminderDialogFragment.BUNDLE_TITLE).orEmpty()
+            val message = bundle.getString(ReminderDialogFragment.BUNDLE_MESSAGE).orEmpty()
+
+            val year = bundle.getInt(ReminderDialogFragment.BUNDLE_YEAR)
+            val month = bundle.getInt(ReminderDialogFragment.BUNDLE_MONTH)
+            val day = bundle.getInt(ReminderDialogFragment.BUNDLE_DAY)
+            val hour = bundle.getInt(ReminderDialogFragment.BUNDLE_HOUR)
+            val minute = bundle.getInt(ReminderDialogFragment.BUNDLE_MINUTE)
+
+            val triggerTime = Calendar.getInstance().apply {
+                set(year, month, day, hour, minute, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+
+            val jobId = currentJob?.job?.id
+            if (jobId == null) {
+                Toast.makeText(requireContext(), "Job is not loaded yet", Toast.LENGTH_SHORT).show()
+                return@setFragmentResultListener
+            }
+
+            val reminder = ReminderEntity(
+                id = reminderID,
+                jobID = jobId,
+                title = title,
+                message = message,
+                triggerAtMillis = triggerTime,
+            )
+
+            if (isEdit) {
+                viewModel.updateReminderInTable(reminder)
+            } else {
+                viewModel.insertToReminders(reminder)
             }
         }
 
@@ -123,7 +222,7 @@ class DetailsFragment : Fragment() {
             currentJob = it
             val job = it.job
 
-            ViewCompat.setTransitionName(binding.detMainCardLay, "job_title${job.title}")
+            ViewCompat.setTransitionName(binding.detMainCardLay, "job_title${job.id}")
 
             startPostponedEnterTransition()
 
@@ -156,39 +255,126 @@ class DetailsFragment : Fragment() {
             // обновляем состояние избранного
             isSaved = it.isSaved
             updateSaveIcon()
+
+            if (observedReminderJobId != job.id) {
+                observedReminderJobId = job.id
+                observeReminders(job.id)
+            }
         }
 
-        setupToolbar()
+    }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            println("POST_NOTIFICATIONS granted = $granted")
+        }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun ensureExactAlarmPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager =
+                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            if (!alarmManager.canScheduleExactAlarms()) {
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                    data = "package:${requireContext().packageName}".toUri()
+                }
+
+                startActivity(intent)
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun observeReminders(jobId: String) {
+
+        viewModel.getRemindersByJobId(jobId).observe(viewLifecycleOwner) { remindersList ->
+            if (remindersList.isNullOrEmpty()) {
+                binding.detReminderRecyclerView.visibility = View.GONE
+                binding.detReminderNoRemTv.visibility = View.VISIBLE
+            } else {
+                binding.detReminderNoRemTv.visibility = View.GONE
+                binding.detReminderRecyclerView.visibility = View.VISIBLE
+            }
+
+            reminderAdapter.submitList(remindersList)
+        }
+    }
+
+    private fun setReminderRecycler() {
+        val layoutManager = LinearLayoutManager(requireContext())
+
+        val pT = resources.getDimension(R.dimen.dimenForRVItems).toInt()
+        val pS = resources.getDimension(R.dimen.remindersRVPaddingSides).toInt()
+        val itemDec = ItemDecReminderRv(
+            paddingTop = pT,
+            paddingBottom = pT,
+            paddingSides = pS
+        )
+
+        reminderAdapter = ReminderAdapter(
+            onDeleteClick = { reminder ->
+                viewModel.deleteFromReminders(reminder)
+            } ,
+            onEditClick = { reminder ->
+                val action = DetailsFragmentDirections.actionDetailsFragmentToReminderDialogFragment(
+                    reminderId = reminder.id,
+                    reminderTitle = reminder.title,
+                    reminderMessage = reminder.message,
+                    reminderTriggerTime = reminder.triggerAtMillis,
+                    isEdit = true
+                )
+
+                findNavController().navigate(action)
+            }
+        )
+        binding.detReminderRecyclerView.layoutManager = layoutManager
+        binding.detReminderRecyclerView.adapter = reminderAdapter
+        binding.detReminderRecyclerView.addItemDecoration(itemDec)
     }
 
     private fun setupToolbar() {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.det_toolbar_menu, menu)
-                saveMenuItem = menu.findItem(R.id.det_save_btn)
-                updateSaveIcon() // сразу ставим правильную иконку
-            }
+        binding.detToolbar.setNavigationOnClickListener { _ ->
+            backCallback?.handleOnBackPressed()
+        }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.det_save_btn -> {
-                        currentJob?.let {
-                            viewModel.toggleSaved(it.job)
-                        }
-                        true
+        binding.detToolbar.inflateMenu(R.menu.det_toolbar_menu)
+
+        saveMenuItem = binding.detToolbar.menu.findItem(R.id.det_save_btn)
+        updateSaveIcon()
+
+        binding.detToolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.det_save_btn -> {
+                    currentJob?.let {
+                        viewModel.toggleSaved(it.job)
                     }
-                    R.id.det_share_btn -> {
-                        currentJob?.let {
-                            shareJob(it)
-                        }
-                        true
-                    }
-                    else -> false
+                    true
                 }
-            }
 
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+                R.id.det_share_btn -> {
+                    currentJob?.let {
+                        shareJob(it)
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun updateSaveIcon() {

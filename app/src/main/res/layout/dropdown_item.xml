@@ -6,6 +6,6 @@
     android:gravity="center_vertical"
     android:paddingHorizontal="16dp"
     android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
-    android:textColor="@color/black"
+    android:textColor="@color/main_text_color"
     android:textSize="16sp" />
 

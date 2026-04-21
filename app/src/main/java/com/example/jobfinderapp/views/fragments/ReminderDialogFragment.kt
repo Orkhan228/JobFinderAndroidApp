@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,7 +15,6 @@ import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentReminderDialogBinding
-import com.google.android.material.datepicker.MaterialStyledDatePickerDialog
 import com.google.android.material.transition.MaterialElevationScale
 
 

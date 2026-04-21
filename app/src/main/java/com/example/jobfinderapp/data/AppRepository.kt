@@ -6,7 +6,6 @@ import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
-import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
 import retrofit2.Response

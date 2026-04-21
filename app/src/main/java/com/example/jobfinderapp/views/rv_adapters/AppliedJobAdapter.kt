@@ -4,7 +4,6 @@ import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.AppliedJobItemBinding
-import com.example.jobfinderapp.utils.toDateString
 import com.example.jobfinderapp.utils.toTimeAgo
 import com.example.jobfinderapp.views.rv_helpers.JobDiffUtil
 

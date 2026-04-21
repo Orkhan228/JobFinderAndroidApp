@@ -9,12 +9,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.jobfinderapp.R
-import com.example.jobfinderapp.databinding.FragmentSavedBinding
 import com.example.jobfinderapp.databinding.FragmentSettingsBinding
 import com.example.jobfinderapp.viewModels.SettingsFragmentViewModel
 

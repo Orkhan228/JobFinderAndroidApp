@@ -53,7 +53,7 @@ class WithdrawDialogFragment : DialogFragment() {
 
         binding.withdrawConfirmBtn.setOnClickListener {
             //Отправляем слушателю с таким же RequestKey, bundle, который является результатом
-            setFragmentResult("WithdrawRequest", bundleOf("confirm" to true))
+            setFragmentResult(WITHDRAW_REQUEST_KEY, bundleOf(WITHDRAW_BUNDLE_KEY to true))
             dismiss()
         }
 
@@ -147,5 +147,10 @@ class WithdrawDialogFragment : DialogFragment() {
             }
             start()
         }
+    }
+
+    companion object {
+        const val WITHDRAW_REQUEST_KEY = "WithdrawRequest"
+        const val WITHDRAW_BUNDLE_KEY = "confirm"
     }
 }

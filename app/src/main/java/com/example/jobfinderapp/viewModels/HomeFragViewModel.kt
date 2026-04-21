@@ -14,9 +14,12 @@ import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.entity.Category
 import com.example.jobfinderapp.entity.Country
 import com.example.jobfinderapp.data.entity.Job
+import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.entity.Company
+import com.example.jobfinderapp.entity.JobSortType
 import com.example.jobfinderapp.entity.Location
 import com.example.jobfinderapp.entity.Result
+import com.example.jobfinderapp.utils.AppLogger
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
 import kotlinx.coroutines.launch
@@ -34,7 +37,10 @@ class HomeFragViewModel : ViewModel() {
     lateinit var appPrefs: AppPrefs
 
     //DB
-    val jobsUIModel by lazy { interActor.getJobsUIModelDB() }
+    private val _jobsUIModel = MediatorLiveData<List<JobUIModel>>()
+    val jobsUIModel: LiveData<List<JobUIModel>> = _jobsUIModel
+
+    private var currentJobsSource: LiveData<List<JobUIModel>>? = null
 
     private var wasOffline = false
 
@@ -110,6 +116,8 @@ class HomeFragViewModel : ViewModel() {
     init {
         App.instance.appComponent.inject(this)
 
+        observeJobsFromDb(JobSortType.DEFAULT)
+
         val initialFilter = createDefaultFilter()
         _filter.value = initialFilter
         loadFilteredJobList(initialFilter)
@@ -121,13 +129,31 @@ class HomeFragViewModel : ViewModel() {
         selectedCountryLiveData.observeForever(selectedCountryObserver)
     }
 
+    private fun observeJobsFromDb(sortType: JobSortType) {
+        currentJobsSource?.let { _jobsUIModel.removeSource(it) }
+
+        val newSource = when (sortType) {
+            JobSortType.DEFAULT -> interActor.getJobsUIModelDB()
+            JobSortType.SALARY_ASC -> interActor.getJobsBySalaryAscDB()
+            JobSortType.SALARY_DESC -> interActor.getJobsBySalaryDescDB()
+        }
+
+        currentJobsSource = newSource
+        _jobsUIModel.addSource(newSource) { jobs ->
+            _jobsUIModel.value = jobs
+        }
+    }
+
 
     private fun createDefaultFilter(): JobFilter {
         val countryCode = appPrefs.getSelectedCountry()
         val countryName = getCountryNameByCode(countryCode)
 
+        val defaultDirection = JobSortType.DEFAULT
+
         return JobFilter(
-            country = Country(countryName, countryCode)
+            country = Country(countryName, countryCode),
+            sortBy = defaultDirection
         )
     }
 
@@ -136,7 +162,10 @@ class HomeFragViewModel : ViewModel() {
 
     fun applyFilter() {
         val filter = _filter.value ?: return
+
         loadFilteredJobList(filter)
+        observeJobsFromDb(filter.sortBy)
+
         _hasPendingFilterChanges.value = false
     }
 
@@ -206,17 +235,13 @@ class HomeFragViewModel : ViewModel() {
         _hasPendingFilterChanges.value = true
     }
 
-    fun onSortByChecked(checked: Boolean) {
+    fun onSortByChecked(sortType: JobSortType) {
         val curr = _filter.value ?: return
-        _filter.value = curr.copy(sortBy = checked)
+
+        _filter.value = curr.copy(sortBy = sortType)
         _hasPendingFilterChanges.value = true
     }
 
-    fun onSortDirChanged(sortDir: String) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(sortDirection = sortDir)
-        _hasPendingFilterChanges.value = true
-    }
 
     fun onSearchKeyWordsChanged(words: String?) {
         val curr = _filter.value ?: return
@@ -295,14 +320,13 @@ class HomeFragViewModel : ViewModel() {
                         }
 
                     } else {
-                        println("!!! No results found for the specified filter")
+                        AppLogger.e("HomeFragmentViewModel", "No results found for the specified filter")
                     }
                 } else {
-                    println("!!! ${result.errorBody()}")
+                    AppLogger.e("HomeFragmentViewModel", "${result.errorBody()}")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                println("Network error ${e.message}")
+                AppLogger.e("HomeFragmentViewModel", "Network error! ${e.message}", e)
             }
 
             isLoading = false

@@ -16,6 +16,7 @@
     <color name="withdraw_bg_btn_darker">#3A4658</color>
     <color name="app_bar_bg">#1B263B</color>
     <color name="main_text_color">#FFFFFF</color>
+    <color name="navigation_bar_bg">#1B263B</color>
 
     <!-- 🔤 Text / Icons -->
     <color name="grey_bot_menu">#8FA1B8</color>

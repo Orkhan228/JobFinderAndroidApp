@@ -32,8 +32,8 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
             apiKey = ApiConst.API_KEY,
             searchKeyWords = jobFilter.searchKeyWords,
             categoryTag = jobFilter.category?.tag,
-            sortDirection = jobFilter.sortDirection,
-            sortBy = if (jobFilter.sortBy) "salary" else null,
+            sortDirection = null,
+            sortBy = null,
             onlyFullTime = if(jobFilter.onlyFullTime) "1" else null,
             onlyPartTime = if (jobFilter.onlyPartTime) "1" else null,
             onlyContractJobs = if (jobFilter.onlyContractJobs) "1" else null,
@@ -48,7 +48,15 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
 
 
     //MAIN table
-    override val jobsUIModel = jobDao.jobsUIModel()
+    override fun getJobsUIModelDB(): LiveData<List<JobUIModel>> =
+        jobDao.getAllJobs()
+
+    override fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>> =
+        jobDao.getJobsBySalaryAsc()
+
+    override fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>> =
+        jobDao.getJobsBySalaryDesc()
+
     override val savedJobs = jobDao.getSavedJobs()
     override val appliedJobs = jobDao.getAppliedJobs()
 

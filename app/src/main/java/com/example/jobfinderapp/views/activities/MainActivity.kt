@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -28,12 +29,14 @@ import androidx.transition.Slide
 import com.example.jobfinderapp.App
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
+import com.example.jobfinderapp.utils.ReselectedScroll
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var navController: NavController
+    private lateinit var navController: NavController
     private lateinit var navOptions: NavOptions
+    private lateinit var navHostFragment: NavHostFragment
 
     private var isBottomNavVisible = true
 
@@ -55,7 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
         enableEdgeToEdge()
+
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -70,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_cont_view) as NavHostFragment
+        navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_cont_view) as NavHostFragment
         navController = navHostFragment.navController
 
         setSupportActionBar(binding.maToolbar)
@@ -97,6 +102,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.botNavView.setupWithNavController(navController)
+
+        binding.botNavView.setOnItemReselectedListener { item ->
+            when(item.itemId) {
+                R.id.homeFragment -> notifyCurrentFragmentToScrollTop()
+                R.id.savedFragment -> notifyCurrentFragmentToScrollTop()
+                R.id.appliedFragment -> notifyCurrentFragmentToScrollTop()
+            }
+        }
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
 
@@ -140,7 +153,14 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
 
+    private fun notifyCurrentFragmentToScrollTop() {
+        val currentFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
+
+        if (currentFragment is ReselectedScroll) {
+            currentFragment.smoothScrollToStart()
+        }
     }
 
     fun hideBotNavViewExclusive(onEnd: () -> Unit) {
@@ -192,6 +212,7 @@ class MainActivity : AppCompatActivity() {
             .setInterpolator(DecelerateInterpolator())
             .start()
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.ma_toolbar_menu, menu)

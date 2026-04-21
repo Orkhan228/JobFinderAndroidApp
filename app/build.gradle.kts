@@ -13,6 +13,7 @@ android {
     namespace = "com.example.jobfinderapp"
     compileSdk = 36
 
+
     defaultConfig {
         applicationId = "com.example.jobfinderapp"
         minSdk = 24
@@ -24,6 +25,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 
@@ -91,4 +93,6 @@ dependencies {
 
     //Зависимость для SpringAnimation
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

@@ -105,7 +105,8 @@
             android:id="@+id/filter_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="40dp">
 
             <TextView
                 android:id="@+id/job_type_tv"
@@ -275,14 +276,14 @@
                 android:textColor="@color/main_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="24dp"
                 android:layout_marginStart="20dp" />
 
             <CheckBox
                 android:id="@+id/sort_salary_cb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/salary"
+                android:text="@string/sort_by_salary"
                 android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
                 android:textColor="@color/main_text_color"
                 android:textStyle="bold"
@@ -291,40 +292,39 @@
                 android:layout_marginTop="14dp"
                 android:minHeight="0dp" />
 
-            <TextView
-                android:id="@+id/sort_direction_tv"
+            <RadioGroup
+                android:id="@+id/sort_direction_rg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sort_direction"
-                android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
-                android:textColor="@color/main_text_color"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="18dp"
-                android:layout_marginStart="20dp" />
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/sort_dir_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="16dp"
-                app:singleSelection="true">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ascending"
+                <RadioButton
+                    android:id="@+id/sort_salary_asc_rb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/ascending" />
+                    android:text="@string/ascending"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:minHeight="0dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/descending"
+                <RadioButton
+                    android:id="@+id/sort_salary_desc_rb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/descending" />
+                    android:text="@string/descending"
+                    android:textAppearance="@style/TextAppearance.AppCompat.JobItemTextAppearance"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:minHeight="0dp"
+                    android:layout_marginTop="6dp" />
 
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+            </RadioGroup>
 
         </LinearLayout>
 

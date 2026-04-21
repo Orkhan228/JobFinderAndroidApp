@@ -13,6 +13,7 @@ import androidx.core.view.updatePadding
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,14 +21,15 @@ import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.FragmentSavedBinding
+import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
 
 
-class SavedFragment : Fragment() {
+class SavedFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentSavedBinding
-    private val sfViewModel: SavedFragmentViewModel by activityViewModels()
+    private val sfViewModel: SavedFragmentViewModel by viewModels()
 
     private var didRunEnterAnimationForRv = false
 
@@ -190,5 +192,9 @@ class SavedFragment : Fragment() {
             .scaleY(1f)
             .setDuration(300)
 
+    }
+
+    override fun smoothScrollToStart() {
+        binding.savedRecyclerView.smoothScrollToPosition(0)
     }
 }

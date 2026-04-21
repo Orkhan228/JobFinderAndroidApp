@@ -20,6 +20,10 @@ interface AppRepository {
         page: Int
     ): Response<JobDTO>
 
+    fun getJobsUIModelDB(): LiveData<List<JobUIModel>>
+    fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>>
+    fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>>
+
     suspend fun toggleSaved(job: Job)
 
     suspend fun toggleApplied(appliedJob: AppliedJob)
@@ -39,7 +43,6 @@ interface AppRepository {
     suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel?
     fun getSharedJob(sharedId: String): LiveData<JobUIModel>
 
-    val jobsUIModel: LiveData<List<JobUIModel>>
 
     val savedJobs: LiveData<List<JobUIModel>>
 

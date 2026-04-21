@@ -15,6 +15,7 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -22,15 +23,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.FragmentAppliedBinding
+import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.AppliedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.AppliedJobAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 
 
-class AppliedFragment : Fragment() {
+class AppliedFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentAppliedBinding
-    private val viewModel: AppliedFragmentViewModel by activityViewModels()
+    private val viewModel: AppliedFragmentViewModel by viewModels()
 
     private var didRunEnterAnimationForRv = false
 
@@ -61,8 +63,8 @@ class AppliedFragment : Fragment() {
         }
 
         //Устанавливаем слушатель результата, для соответствущего requestKey
-        setFragmentResultListener("WithdrawRequest") { _, bundle ->
-            val isConfirmed = bundle.getBoolean("confirm")
+        setFragmentResultListener(WithdrawDialogFragment.WITHDRAW_REQUEST_KEY) { _, bundle ->
+            val isConfirmed = bundle.getBoolean(WithdrawDialogFragment.WITHDRAW_BUNDLE_KEY)
 
             if (isConfirmed) {
                 viewModel.confirmWithdraw()
@@ -135,7 +137,7 @@ class AppliedFragment : Fragment() {
 
     //Вот здесь есть потенциальный баг, при быстром нажатии после удаления вакансии из Applied.
     private fun openDetails(jobUIModel: JobUIModel, v: View) {
-        val trName = "job_title${jobUIModel.job.title}"
+        val trName = "job_title${jobUIModel.job.id}"
 
         val extras = FragmentNavigatorExtras(v to trName)
 
@@ -278,6 +280,10 @@ class AppliedFragment : Fragment() {
             .scaleY(1f)
             .setDuration(300)
 
+    }
+
+    override fun smoothScrollToStart() {
+        binding.appliedRecyclerView.smoothScrollToPosition(0)
     }
 
 }

@@ -132,7 +132,7 @@ class ReminderDialogFragment : DialogFragment() {
             String.format("%02d:%02d", selectedHour, selectedMinute)
         )
 
-        binding.remDiCreateBtn.text = "Update"
+        binding.remDiCreateBtn.text = getString(R.string.update)
     }
 
     private fun showDatePicker() {

@@ -23,7 +23,7 @@ class AlarmSchedulerImpl @Inject constructor (
             // проверка exact alarm permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (!alarmManager.canScheduleExactAlarms()) {
-                    Log.e("AlarmScheduler", "Exact alarm permission not granted")
+                    AppLogger.e("AlarmScheduler", "Exact alarm permission not granted")
                     return
                 }
             }

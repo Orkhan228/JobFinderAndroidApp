@@ -8,6 +8,7 @@ import com.example.jobfinderapp.App
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.domain.InterActor
+import com.example.jobfinderapp.utils.AppLogger
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ class NotificationsFragmentViewModel : ViewModel() {
     private suspend fun deleteFromSharedTableInner(jobId: String) {
         val job = interActor.getSharedJobByIdOnce(jobId)
         if (job != null) interActor.deleteFromSharedTable(SharedJobs(job))
-        else Log.e("SharedJobIDNull", "The job is not in shared table ")
+        else AppLogger.e("SharedJobIDNull", "The job is not in shared table")
     }
 
 }

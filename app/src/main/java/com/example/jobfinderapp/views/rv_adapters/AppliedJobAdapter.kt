@@ -100,7 +100,7 @@ class AppliedJobAdapter(private val onClick: (JobUIModel, View) -> Unit, private
 
             }
 
-            ViewCompat.setTransitionName(binding.appliedRootLay, "job_title${jobUIModel.job.title}")
+            ViewCompat.setTransitionName(binding.appliedRootLay, "job_title${jobUIModel.job.id}")
         }
     }
 

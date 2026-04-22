@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.views.fragments
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +8,6 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
@@ -18,8 +15,8 @@ import com.example.jobfinderapp.utils.JobCategories
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentFilterModalBotBinding
+import com.example.jobfinderapp.entity.JobSortType
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
-import com.example.jobfinderapp.views.activities.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -99,13 +96,9 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             binding.permanentTimeCb.isChecked = currFilter.onlyPermanentJobs
             binding.categoryDropdown.setText(currFilter.category?.label, false)
             binding.countryDropdown.setText(currFilter.country.name, false)
-            binding.sortSalaryCb.isChecked = currFilter.sortBy
-
-            if (currFilter.sortDirection == "up") {
-                binding.sortDirGroup.check(R.id.ascending)
-            } else if (currFilter.sortDirection == "down") {
-                binding.sortDirGroup.check(R.id.descending)
-            }
+            binding.sortSalaryCb.isChecked = currFilter.sortBy != JobSortType.DEFAULT
+            binding.sortSalaryAscRb.isChecked = currFilter.sortBy == JobSortType.SALARY_ASC
+            binding.sortSalaryDescRb.isChecked = currFilter.sortBy == JobSortType.SALARY_DESC
 
             val countryLocCode = countryLocationCodes[currFilter.country.code] ?: "UK"
 
@@ -174,19 +167,6 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             }
         }
 
-        binding.sortSalaryCb.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onSortByChecked(isChecked)
-        }
-
-        binding.sortDirGroup.addOnButtonCheckedListener { gr, checkedID, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-
-            when(checkedID) {
-                R.id.ascending -> viewModel.onSortDirChanged("up")
-                R.id.descending -> viewModel.onSortDirChanged("down")
-            }
-        }
-
         binding.filterSearchBtn.setOnClickListener {
             if (binding.filterSearchBtn.isEnabled) {
                 viewModel.installFilter(true)
@@ -202,6 +182,25 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             binding.textInputEt.text?.clear()
         }
 
+        binding.sortSalaryCb.setOnCheckedChangeListener { _, isChecked ->
+            binding.sortDirectionRg.isVisible = isChecked
+
+            if (!isChecked) {
+                binding.sortDirectionRg.clearCheck()
+                viewModel.onSortByChecked(JobSortType.DEFAULT)
+            } else {
+                viewModel.onSortByChecked(JobSortType.SALARY_DESC)
+                binding.sortSalaryDescRb.isChecked = true
+            }
+        }
+
+        binding.sortSalaryAscRb.setOnClickListener {
+            viewModel.onSortByChecked(JobSortType.SALARY_ASC)
+        }
+
+        binding.sortSalaryDescRb.setOnClickListener {
+            viewModel.onSortByChecked(JobSortType.SALARY_DESC)
+        }
 
         viewModel.filterState.observe(viewLifecycleOwner) { isShown ->
             animateClearBtn(isShown)

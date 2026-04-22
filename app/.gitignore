@@ -1,2 +1,3 @@
 /build
-/src/main/java/com/example/jobfinderapp/ApiConst.kt
+/src/main/java/com/example/jobfinderapp/utils/ApiConst.kt
+/src/main/java/com/example/jobfinderapp/views/notifications/NotificationConstants.kt

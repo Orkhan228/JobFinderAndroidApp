@@ -6,7 +6,6 @@ import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
-import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
 import retrofit2.Response
@@ -19,6 +18,10 @@ interface AppRepository {
         jobFilter: JobFilter,
         page: Int
     ): Response<JobDTO>
+
+    fun getJobsUIModelDB(): LiveData<List<JobUIModel>>
+    fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>>
+    fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>>
 
     suspend fun toggleSaved(job: Job)
 
@@ -39,7 +42,6 @@ interface AppRepository {
     suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel?
     fun getSharedJob(sharedId: String): LiveData<JobUIModel>
 
-    val jobsUIModel: LiveData<List<JobUIModel>>
 
     val savedJobs: LiveData<List<JobUIModel>>
 

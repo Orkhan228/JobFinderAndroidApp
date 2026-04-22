@@ -2,13 +2,11 @@ package com.example.jobfinderapp.views.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.transition.AutoTransition
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,32 +14,20 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.DialogFragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.ChangeBounds
-import androidx.transition.ChangeClipBounds
-import androidx.transition.ChangeTransform
-import androidx.transition.Fade
-import androidx.transition.TransitionSet
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
-import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.databinding.FragmentHomeBinding
-import com.example.jobfinderapp.entity.Country
+import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.example.jobfinderapp.views.activities.MainActivity
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentHomeBinding
     private val hfViewModel: HomeFragViewModel by activityViewModels()
@@ -98,8 +84,6 @@ class HomeFragment : Fragment() {
         binding.hfSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             //принятие ключевых слов, для поиска работы, опять же при нажатии submit, то есть подтверждения, закрывать searchView
             override fun onQueryTextSubmit(query: String?): Boolean {
-                println("!!! textSubmit")
-
                 hfViewModel.onSearchKeyWordsChanged(query)
 
                 binding.hfSearchView.clearFocus()
@@ -107,8 +91,6 @@ class HomeFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                println("!!! textChange")
-
                 if (newText.isNullOrEmpty()) {
                     hfViewModel.onSearchKeyWordsChanged(newText)
                     binding.hfSearchView.clearFocus()
@@ -184,7 +166,7 @@ class HomeFragment : Fragment() {
 
                 if (!hfViewModel.isLoading &&
                     !hfViewModel.isLastPage &&
-                    (firstVisibleItemPosition + visibleItemCount >= totalItemCount - 5)) {
+                    (firstVisibleItemPosition + visibleItemCount >= totalItemCount - 8)) {
                     hfViewModel.loadNextPage()
                 }
             }
@@ -253,7 +235,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-    companion object {
-        const val FILTER_FRAGMENT_TAG = "FilterBottomSheet"
+    override fun smoothScrollToStart() {
+        binding.hfRecyclerView.smoothScrollToPosition(0)
+        binding.hfAppBarLayout.setExpanded(true)
     }
 }

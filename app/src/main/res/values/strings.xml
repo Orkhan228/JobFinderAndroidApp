@@ -69,4 +69,6 @@
     <string name="select_country_01">Select Country</string>
     <string name="disabled">Disabled</string>
     <string name="enabled">Enabled</string>
+    <string name="sort_by_salary">Sort by Salary</string>
+    <string name="update">Update</string>
 </resources>

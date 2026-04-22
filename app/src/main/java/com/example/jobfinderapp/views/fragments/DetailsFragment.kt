@@ -15,17 +15,14 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -34,7 +31,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.transition.AutoTransition
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeClipBounds
 import androidx.transition.ChangeTransform
@@ -50,6 +46,7 @@ import com.example.jobfinderapp.viewModels.DetailsFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.ReminderAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
 import androidx.core.net.toUri
+import com.example.jobfinderapp.utils.AppLogger
 
 class DetailsFragment : Fragment() {
 
@@ -266,7 +263,7 @@ class DetailsFragment : Fragment() {
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            println("POST_NOTIFICATIONS granted = $granted")
+            AppLogger.d("DetailsFragment", "POST_NOTIFICATIONS granted = $granted" )
         }
 
     private fun requestNotificationPermissionIfNeeded() {
@@ -386,13 +383,13 @@ class DetailsFragment : Fragment() {
 
     private fun updateApplyBtn(isApplied: Boolean) {
         if (isApplied) {
-            binding.detAppliedJobBtn.text = "Applied"
+            binding.detAppliedJobBtn.text = resources.getString(R.string.applied)
             binding.detAppliedJobBtn.isSelected = true
             binding.detAppliedJobBtn.isClickable = false
             binding.detAppliedJobBtn.isEnabled = false
 
         } else {
-            binding.detAppliedJobBtn.text = "Apply Now"
+            binding.detAppliedJobBtn.text = resources.getString(R.string.apply_now)
             binding.detAppliedJobBtn.isSelected = false
             binding.detAppliedJobBtn.isClickable = true
             binding.detAppliedJobBtn.isEnabled = true
@@ -427,6 +424,7 @@ class DetailsFragment : Fragment() {
             startActivity(Intent.createChooser(intent, "Share job via"))
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(requireContext(), "Sorry, no such app", Toast.LENGTH_SHORT).show()
+            Log.e("DetailsFragment", "No app to share with", e)
         }
 
     }

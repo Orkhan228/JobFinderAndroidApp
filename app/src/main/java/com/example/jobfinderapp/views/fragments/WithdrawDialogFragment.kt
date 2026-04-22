@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.views.fragments
 
-import android.animation.AnimatorSet
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -11,8 +10,6 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.transition.Fade
-import androidx.transition.TransitionSet
 import com.example.jobfinderapp.databinding.WithdrawDialogLayoutBinding
 import com.google.android.material.transition.MaterialElevationScale
 
@@ -53,7 +50,7 @@ class WithdrawDialogFragment : DialogFragment() {
 
         binding.withdrawConfirmBtn.setOnClickListener {
             //Отправляем слушателю с таким же RequestKey, bundle, который является результатом
-            setFragmentResult("WithdrawRequest", bundleOf("confirm" to true))
+            setFragmentResult(WITHDRAW_REQUEST_KEY, bundleOf(WITHDRAW_BUNDLE_KEY to true))
             dismiss()
         }
 
@@ -147,5 +144,10 @@ class WithdrawDialogFragment : DialogFragment() {
             }
             start()
         }
+    }
+
+    companion object {
+        const val WITHDRAW_REQUEST_KEY = "WithdrawRequest"
+        const val WITHDRAW_BUNDLE_KEY = "confirm"
     }
 }

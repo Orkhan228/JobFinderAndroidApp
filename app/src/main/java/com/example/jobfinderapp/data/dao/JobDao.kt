@@ -33,6 +33,39 @@ interface JobDao {
     @Query("SELECT EXISTS(SELECT 1 FROM saved_jobs WHERE id = :id)")
     suspend fun isInSaved(id: String): Boolean
 
+    //Sorted queries
+    @Query("""
+    SELECT job_table.*,
+    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
+    case when applied_jobs.id is not null then 1 else 0 end as isApplied
+    from job_table
+    left join saved_jobs on saved_jobs.id = job_table.id
+    left join applied_jobs on applied_jobs.id = job_table.id
+    """)
+    fun getAllJobs(): LiveData<List<JobUIModel>>
+
+    @Query("""
+    SELECT job_table.*,
+    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
+    case when applied_jobs.id is not null then 1 else 0 end as isApplied
+    from job_table 
+    left join saved_jobs on saved_jobs.id = job_table.id
+    left join applied_jobs on applied_jobs.id = job_table.id
+    ORDER BY COALESCE(job_table.required_salary, 0) ASC
+    """)
+    fun getJobsBySalaryAsc(): LiveData<List<JobUIModel>>
+
+    @Query("""
+    SELECT job_table.*,
+    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
+    case when applied_jobs.id is not null then 1 else 0 end as isApplied
+    from job_table 
+    left join saved_jobs on saved_jobs.id = job_table.id
+    left join applied_jobs on applied_jobs.id = job_table.id
+    ORDER BY COALESCE(job_table.required_salary, 0) DESC
+    """)
+    fun getJobsBySalaryDesc(): LiveData<List<JobUIModel>>
+
     @Query("""
     select 
     saved_jobs.*,
@@ -42,16 +75,6 @@ interface JobDao {
     left join applied_jobs on saved_jobs.id = applied_jobs.id
     """)
     fun getSavedJobs(): LiveData<List<JobUIModel>>
-
-    @Query("""
-    SELECT job_table.*,
-    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
-    case when applied_jobs.id is not null then 1 else 0 end as isApplied
-    from job_table
-    left join saved_jobs on saved_jobs.id = job_table.id
-    left join applied_jobs on applied_jobs.id = job_table.id
-    """)
-    fun jobsUIModel(): LiveData<List<JobUIModel>>
 
     @Query("SELECT job_table.*, case when saved_jobs.id is not null then 1 else 0 end as isSaved,  case when applied_jobs.id is not null then 1 else 0 end as isApplied from job_table left join saved_jobs on saved_jobs.id = job_table.id left join applied_jobs on applied_jobs.id = job_table.id where job_table.id = :id")
     fun getJobById(id: String): LiveData<JobUIModel?>

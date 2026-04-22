@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.viewModels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.domain.InterActor
+import com.example.jobfinderapp.utils.AppLogger
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -121,7 +121,7 @@ class DetailsFragmentViewModel : ViewModel() {
             val job = interActor.getSharedJobByIdOnce(jobId)
 
             if (job != null) insertToJobsContainer(job)
-            else Log.e("SharedJobIDNull", "The job is not in shared table ")
+            else AppLogger.e("SharedJobIDNull", "The job is not in shared table")
         }
     }
 

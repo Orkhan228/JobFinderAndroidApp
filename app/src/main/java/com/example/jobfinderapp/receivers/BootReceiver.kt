@@ -4,13 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.jobfinderapp.App
-import com.example.jobfinderapp.data.AppRepository
-import com.example.jobfinderapp.utils.AlarmScheduler
-import dagger.android.DaggerBroadcastReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class BootReceiver : BroadcastReceiver() {
 

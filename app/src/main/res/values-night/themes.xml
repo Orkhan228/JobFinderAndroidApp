@@ -7,8 +7,10 @@
         <item name="fontFamily">@font/open_sans</item>
         <item name="colorControlNormal">@color/grey_bot_menu</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
-        <item name="colorSurfaceContainerLow">@color/app_bar_bg</item>
+        <item name="colorSurfaceContainerLow">@color/navigation_bar_bg</item>
+        <item name="android:windowBackground">@color/main_bg_color</item>
     </style>
+
 
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:navigationBarColor">@android:color/transparent</item>

@@ -23,7 +23,9 @@ class InterActor @Inject constructor(private val repo: AppRepository) {
 
 
     //LOCAL DB
-    fun getJobsUIModelDB(): LiveData<List<JobUIModel>> = repo.jobsUIModel
+    fun getJobsUIModelDB(): LiveData<List<JobUIModel>> = repo.getJobsUIModelDB()
+    fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>> = repo.getJobsBySalaryAscDB()
+    fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>> = repo.getJobsBySalaryDescDB()
 
     fun getOnlySavedJobsFromDB(): LiveData<List<JobUIModel>> = repo.savedJobs
 

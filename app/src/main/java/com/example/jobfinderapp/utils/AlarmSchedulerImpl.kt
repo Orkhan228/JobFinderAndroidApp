@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.receivers.ReminderReceiver
 import com.example.jobfinderapp.views.notifications.NotificationConstants
@@ -23,7 +22,7 @@ class AlarmSchedulerImpl @Inject constructor (
             // проверка exact alarm permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (!alarmManager.canScheduleExactAlarms()) {
-                    Log.e("AlarmScheduler", "Exact alarm permission not granted")
+                    AppLogger.e("AlarmScheduler", "Exact alarm permission not granted")
                     return
                 }
             }

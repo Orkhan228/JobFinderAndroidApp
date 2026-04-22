@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
 import com.example.jobfinderapp.R
+import com.example.jobfinderapp.utils.AppLogger
 
 object NotificationHelper {
 
@@ -47,7 +48,7 @@ object NotificationHelper {
 
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(context, NotificationConstants.CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(message ?: "You have a reminder")
                 .setContentIntent(pendingIntentToDetailsFragment)
@@ -55,7 +56,7 @@ object NotificationHelper {
                 .setShowWhen(true)
         } else {
             Notification.Builder(context)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(message ?: "You have a reminder")
                 .setContentIntent(pendingIntentToDetailsFragment)
@@ -71,17 +72,15 @@ object NotificationHelper {
 
 
             if (!granted) {
-                println("!!! error helper")
+                AppLogger.e("NotificationHelper", "Permission POST_NOTIFICATIONS not granted")
                 return
             }
         }
 
         try {
             NotificationManagerCompat.from(context).notify(notificationId, builder.build())
-            println("!!! helper ok")
         } catch (e: SecurityException) {
-            println("!!! helper not ok")
-            e.printStackTrace()
+            AppLogger.e("NotificationHelper", e.message.toString(), e)
         }
 
     }

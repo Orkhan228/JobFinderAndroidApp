@@ -11,13 +11,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jobfinderapp.R
@@ -31,7 +30,7 @@ import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
 class NotificationsFragment : Fragment() {
 
     private lateinit var binding: FragmentNotificationsBinding
-    private val viewModel: NotificationsFragmentViewModel by activityViewModels()
+    private val viewModel: NotificationsFragmentViewModel by viewModels()
 
     private lateinit var notificationAdapter: NotificationAdapter
 
@@ -54,15 +53,13 @@ class NotificationsFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val extraRvPadding = requireContext().resources.getDimension(R.dimen.rvExtraPadding).toInt()
+        val extraRvPadding = requireContext().resources.getDimension(R.dimen.dimenForRVItemsSide).toInt()
         ViewCompat.setOnApplyWindowInsetsListener(binding.notificationsRecyclerView) { v, windowInsets ->
-            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            v.updatePadding(bottom = extraRvPadding + systemBars.bottom)
+            v.updatePadding(bottom = extraRvPadding)
             windowInsets
         }
 

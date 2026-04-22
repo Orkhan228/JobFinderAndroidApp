@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.icu.util.Calendar
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings

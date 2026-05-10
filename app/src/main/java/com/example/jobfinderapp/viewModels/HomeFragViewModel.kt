@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.domain.InterActor
@@ -22,19 +21,12 @@ import com.example.jobfinderapp.entity.Result
 import com.example.jobfinderapp.utils.AppLogger
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class HomeFragViewModel : ViewModel() {
-
-    @Inject
-    lateinit var interActor: InterActor
-
-    @Inject
-    lateinit var networkMonitor: NetworkMonitor
-
-    @Inject
-    lateinit var appPrefs: AppPrefs
+@HiltViewModel
+class HomeFragViewModel @Inject constructor(private val interActor: InterActor, private val networkMonitor: NetworkMonitor, private val appPrefs: AppPrefs) : ViewModel() {
 
     //DB
     private val _jobsUIModel = MediatorLiveData<List<JobUIModel>>()
@@ -114,8 +106,6 @@ class HomeFragViewModel : ViewModel() {
     }
 
     init {
-        App.instance.appComponent.inject(this)
-
         observeJobsFromDb(JobSortType.DEFAULT)
 
         val initialFilter = createDefaultFilter()

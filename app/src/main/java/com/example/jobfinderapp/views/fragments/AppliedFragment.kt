@@ -26,8 +26,9 @@ import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.AppliedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.AppliedJobAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class AppliedFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentAppliedBinding

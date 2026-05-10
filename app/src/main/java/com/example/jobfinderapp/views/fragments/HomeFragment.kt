@@ -26,7 +26,9 @@ import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.example.jobfinderapp.views.activities.MainActivity
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentHomeBinding

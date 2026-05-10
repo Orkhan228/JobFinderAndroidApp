@@ -15,8 +15,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentSettingsBinding
 import com.example.jobfinderapp.viewModels.SettingsFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding

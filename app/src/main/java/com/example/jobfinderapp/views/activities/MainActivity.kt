@@ -22,12 +22,13 @@ import com.example.jobfinderapp.databinding.ActivityMainBinding
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
 import com.example.jobfinderapp.utils.ReselectedScroll
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
@@ -43,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var appPrefs: AppPrefs
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        App.instance.appComponent.inject(this)
+        super.onCreate(savedInstanceState)
 
         val isDarkMode = appPrefs.isDarkTheme()
         if (isDarkMode) {
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         }
 
-        super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         enableEdgeToEdge()

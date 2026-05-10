@@ -2,20 +2,14 @@ package com.example.jobfinderapp.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.domain.InterActor
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SavedFragmentViewModel : ViewModel() {
-
-    @Inject
-    lateinit var interActor: InterActor
-
-    init {
-        App.instance.appComponent.inject(this)
-    }
+@HiltViewModel
+class SavedFragmentViewModel @Inject constructor(private val interActor: InterActor) : ViewModel() {
 
     private val savedJobs = interActor.getOnlySavedJobsFromDB()
     val savedJobsUI = savedJobs
@@ -25,5 +19,4 @@ class SavedFragmentViewModel : ViewModel() {
             interActor.toggleSaved(job)
         }
     }
-
 }

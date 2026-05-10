@@ -3,25 +3,14 @@ package com.example.jobfinderapp.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.JobCountries
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-class SettingsFragmentViewModel : ViewModel() {
-
-    @Inject
-    lateinit var interActor: InterActor
-
-    @Inject
-    lateinit var appPrefs: AppPrefs
-
-    init {
-        App.instance.appComponent.inject(this)
-
-
-    }
+@HiltViewModel
+class SettingsFragmentViewModel @Inject constructor(private val interActor: InterActor, private val appPrefs: AppPrefs): ViewModel() {
 
     val remindersCount: LiveData<Int> = interActor.getFromRemindersAll().map { remindersList ->
         remindersList.size
@@ -46,7 +35,6 @@ class SettingsFragmentViewModel : ViewModel() {
     fun getIsDarkTheme(): Boolean {
         return appPrefs.isDarkTheme()
     }
-
 
     fun getCountryNameByCode(countryCode: String): String =
         JobCountries.countriesMapNorm[countryCode] ?: "Great Britain"

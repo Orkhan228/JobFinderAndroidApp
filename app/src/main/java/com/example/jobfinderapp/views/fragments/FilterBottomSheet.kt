@@ -20,7 +20,9 @@ import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FilterBottomSheet : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentFilterModalBotBinding

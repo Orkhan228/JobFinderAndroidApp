@@ -6,21 +6,28 @@ import com.example.jobfinderapp.data.dao.JobDao
 import com.example.jobfinderapp.data.db.JobDatabase
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-interface DatabaseModule {
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
 
-    companion object {
-        @Provides
-        @Singleton
-        fun providesJobDatabase(appContext: Context): JobDatabase =
-            Room.databaseBuilder(context = appContext, klass = JobDatabase::class.java, name = "job_database")
-                .fallbackToDestructiveMigration()
-                .build()
+    @Provides
+    @Singleton
+    fun providesJobDatabase(@ApplicationContext appContext: Context): JobDatabase =
+        Room.databaseBuilder(
+            context = appContext,
+            klass = JobDatabase::class.java,
+            name = "job_database"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
 
-        @Provides
-        fun providesJobDao(jobDatabase: JobDatabase): JobDao = jobDatabase.jobDao()
-    }
+    @Provides
+    @Singleton
+    fun providesJobDao(jobDatabase: JobDatabase): JobDao = jobDatabase.jobDao()
 
 }

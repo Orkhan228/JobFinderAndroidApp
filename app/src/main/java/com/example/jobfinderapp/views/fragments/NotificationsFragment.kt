@@ -25,8 +25,9 @@ import com.example.jobfinderapp.databinding.FragmentNotificationsBinding
 import com.example.jobfinderapp.viewModels.NotificationsFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.NotificationAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class NotificationsFragment : Fragment() {
 
     private lateinit var binding: FragmentNotificationsBinding

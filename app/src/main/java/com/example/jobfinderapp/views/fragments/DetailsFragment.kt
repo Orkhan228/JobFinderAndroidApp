@@ -46,7 +46,9 @@ import com.example.jobfinderapp.views.rv_adapters.ReminderAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
 import androidx.core.net.toUri
 import com.example.jobfinderapp.utils.AppLogger
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DetailsFragment : Fragment() {
 
     private val args: DetailsFragmentArgs by navArgs()
@@ -64,7 +66,6 @@ class DetailsFragment : Fragment() {
 
     private lateinit var reminderAdapter: ReminderAdapter
     private var observedReminderJobId: String? = null
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

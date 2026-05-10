@@ -23,8 +23,9 @@ import com.example.jobfinderapp.databinding.FragmentSavedBinding
 import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SavedFragment : Fragment(), ReselectedScroll {
 
     private lateinit var binding: FragmentSavedBinding

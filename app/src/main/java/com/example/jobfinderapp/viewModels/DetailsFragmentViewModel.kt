@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jobfinderapp.App
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
@@ -12,13 +11,12 @@ import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.utils.AppLogger
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class DetailsFragmentViewModel : ViewModel() {
-
-    @Inject
-    lateinit var interActor: InterActor
+@HiltViewModel
+class DetailsFragmentViewModel @Inject constructor(private val interActor: InterActor) : ViewModel() {
 
     private val _jobsContainer = MutableLiveData<JobUIModel>()
     val jobsContainer: LiveData<JobUIModel> = _jobsContainer
@@ -26,10 +24,6 @@ class DetailsFragmentViewModel : ViewModel() {
     private val _applyState = MutableLiveData<Boolean>()
     val applyState: LiveData<Boolean> = _applyState
 
-    init {
-        App.instance.appComponent.inject(this)
-
-    }
 
     fun toggleSaved(job: Job) {
         val current = _jobsContainer.value ?: return
@@ -124,5 +118,4 @@ class DetailsFragmentViewModel : ViewModel() {
             else AppLogger.e("SharedJobIDNull", "The job is not in shared table")
         }
     }
-
 }

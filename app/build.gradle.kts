@@ -1,12 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
     id("com.google.devtools.ksp")
 
     //SafeArgs for Navigation
     id("androidx.navigation.safeargs.kotlin")
 
     id("kotlin-parcelize")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -71,13 +73,10 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 
-    //Dagger2
-    val daggerVersion = "2.51.1"
-    implementation("com.google.dagger:dagger:$daggerVersion")
-    // Процессор аннотаций (генерирует код)
-    ksp("com.google.dagger:dagger-compiler:$daggerVersion")
-    implementation("com.google.dagger:dagger-android:$daggerVersion")
-    ksp("com.google.dagger:dagger-android-processor:$daggerVersion")
+
+    //Hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
 
     //Room Implementation
     val roomVersion = "2.6.1" // Актуальная стабильная версия

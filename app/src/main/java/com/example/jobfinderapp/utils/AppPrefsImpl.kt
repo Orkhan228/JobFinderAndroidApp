@@ -13,7 +13,6 @@ class AppPrefsImpl @Inject constructor(
     companion object {
         private const val KEY_DARK_THEME = "dark_theme"
         private const val KEY_COUNTRY_SELECT = "country_selection"
-
     }
 
     private val selectedCountryLiveData = MutableLiveData<String>(getSelectedCountry())

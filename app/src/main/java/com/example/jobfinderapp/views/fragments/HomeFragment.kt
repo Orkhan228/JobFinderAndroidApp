@@ -14,6 +14,9 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +30,7 @@ import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.example.jobfinderapp.views.activities.MainActivity
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(), ReselectedScroll {
@@ -86,21 +90,16 @@ class HomeFragment : Fragment(), ReselectedScroll {
         binding.hfSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             //принятие ключевых слов, для поиска работы, опять же при нажатии submit, то есть подтверждения, закрывать searchView
             override fun onQueryTextSubmit(query: String?): Boolean {
-                hfViewModel.onSearchKeyWordsChanged(query)
-
                 binding.hfSearchView.clearFocus()
+
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrEmpty()) {
-                    hfViewModel.onSearchKeyWordsChanged(newText)
-                    binding.hfSearchView.clearFocus()
-                }
+                hfViewModel.onSearchKeyWordsChangedFlow(newText)
 
                 return true
             }
-
         })
 
         val jobAdapter = JobAdapter(onClick = { jobUIModel, v ->
@@ -122,30 +121,34 @@ class HomeFragment : Fragment(), ReselectedScroll {
         postponeEnterTransition()
 
         //подписка на изменения списка работ. Так как работаем c ListAdapter, то список обновляем через submitList
-        hfViewModel.jobsUIModel.observe(viewLifecycleOwner) { jobUIModelList ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                hfViewModel.homeUIStateFlow.collect { homeUIState ->
 
-            val isEmpty = jobUIModelList.isNullOrEmpty()
-            val isConnected = hfViewModel.internetState.value ?: true
+                    binding.noApiDbLay.isVisible = homeUIState.showNoInternet
+                    binding.noSearchResLay.isVisible = homeUIState.showNoResults
+                    binding.hfRecyclerView.isVisible = homeUIState.jobs.isNotEmpty()
 
-            binding.noApiDbLay.isVisible = !isConnected && isEmpty
-            binding.noSearchResLay.isVisible = isConnected && isEmpty
-            binding.hfRecyclerView.isVisible = !isEmpty
-
-            jobAdapter.submitList(jobUIModelList) {
-                binding.hfRecyclerView.doOnPreDraw {
-                    startPostponedEnterTransition()
+                    jobAdapter.submitList(homeUIState.jobs) {
+                        binding.hfRecyclerView.doOnPreDraw {
+                            startPostponedEnterTransition()
+                        }
+                    }
                 }
             }
-
         }
 
         //подписка на mediatorLiveData, для показа количества параметров в краю фильтра.
-        hfViewModel.filterBadgeCount.observe(viewLifecycleOwner) { count ->
-            if (count > 0) {
-                binding.filterBadgeTv.text = count.toString()
-                binding.filterBadgeTv.visibility = View.VISIBLE
-            } else {
-                binding.filterBadgeTv.visibility = View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                hfViewModel.filterBadgeCountFlow.collect { count ->
+                    if (count > 0) {
+                        binding.filterBadgeTv.text = count.toString()
+                        binding.filterBadgeTv.visibility = View.VISIBLE
+                    } else {
+                        binding.filterBadgeTv.visibility = View.GONE
+                    }
+                }
             }
         }
 

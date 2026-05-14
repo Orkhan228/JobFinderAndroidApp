@@ -11,6 +11,9 @@ import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.jobfinderapp.utils.JobCategories
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.R
@@ -21,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FilterBottomSheet : BottomSheetDialogFragment() {
@@ -90,27 +94,30 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         binding.categoryDropdown.setAdapter(adapterCategory)
         binding.countryDropdown.setAdapter(adapterCountry)
 
-        viewModel.filter.observe(viewLifecycleOwner) { currFilter ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filter.collect { currFilter ->
+                    binding.fullTimeCb.isChecked = currFilter.onlyFullTime
+                    binding.partTimeCb.isChecked = currFilter.onlyPartTime
+                    binding.contractTimeCb.isChecked = currFilter.onlyContractJobs
+                    binding.permanentTimeCb.isChecked = currFilter.onlyPermanentJobs
+                    binding.categoryDropdown.setText(currFilter.category?.label, false)
+                    binding.countryDropdown.setText(currFilter.country.name, false)
+                    binding.sortSalaryCb.isChecked = currFilter.sortBy != JobSortType.DEFAULT
+                    binding.sortSalaryAscRb.isChecked = currFilter.sortBy == JobSortType.SALARY_ASC
+                    binding.sortSalaryDescRb.isChecked = currFilter.sortBy == JobSortType.SALARY_DESC
 
-            binding.fullTimeCb.isChecked = currFilter.onlyFullTime
-            binding.partTimeCb.isChecked = currFilter.onlyPartTime
-            binding.contractTimeCb.isChecked = currFilter.onlyContractJobs
-            binding.permanentTimeCb.isChecked = currFilter.onlyPermanentJobs
-            binding.categoryDropdown.setText(currFilter.category?.label, false)
-            binding.countryDropdown.setText(currFilter.country.name, false)
-            binding.sortSalaryCb.isChecked = currFilter.sortBy != JobSortType.DEFAULT
-            binding.sortSalaryAscRb.isChecked = currFilter.sortBy == JobSortType.SALARY_ASC
-            binding.sortSalaryDescRb.isChecked = currFilter.sortBy == JobSortType.SALARY_DESC
+                    val countryLocCode = countryLocationCodes[currFilter.country.code] ?: "UK"
 
-            val countryLocCode = countryLocationCodes[currFilter.country.code] ?: "UK"
+                    val locationString = currFilter.locations
+                        ?.filter { it != countryLocCode }
+                        ?.joinToString(", ") ?: ""
 
-            val locationString = currFilter.locations
-                ?.filter { it != countryLocCode }
-                ?.joinToString(", ") ?: ""
-
-            if (binding.textInputEt.text.toString() != locationString) {
-                binding.textInputEt.setText(locationString)
-                binding.textInputEt.setSelection(locationString.length)
+                    if (binding.textInputEt.text.toString() != locationString) {
+                        binding.textInputEt.setText(locationString)
+                        binding.textInputEt.setSelection(locationString.length)
+                    }
+                }
             }
         }
 
@@ -204,12 +211,20 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             viewModel.onSortByChecked(JobSortType.SALARY_DESC)
         }
 
-        viewModel.filterState.observe(viewLifecycleOwner) { isShown ->
-            animateClearBtn(isShown)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filterState.collect { isShown ->
+                    animateClearBtn(isShown)
+                }
+            }
         }
 
-        viewModel.hasPendingFilterChanges.observe(viewLifecycleOwner) { hasChanges ->
-            binding.filterSearchBtn.isEnabled = hasChanges
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.hasPendingFilterChanges.collect { hasChanges ->
+                    binding.filterSearchBtn.isEnabled = hasChanges
+                }
+            }
         }
     }
 
@@ -219,7 +234,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         clearLay.animate().cancel()
 
         if (isShown) {
-            if (clearLay.visibility == View.VISIBLE && clearLay.alpha == 1f) return
+            if (clearLay.isVisible && clearLay.alpha == 1f) return
 
             clearLay.visibility = View.VISIBLE
             clearLay.alpha = 0f

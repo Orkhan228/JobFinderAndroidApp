@@ -11,11 +11,15 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentSettingsBinding
 import com.example.jobfinderapp.viewModels.SettingsFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -58,13 +62,17 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        viewModel.remindersCount.observe(viewLifecycleOwner) { count ->
-            if (count == 0 || count == null) {
-                binding.spTbReminderCount.text = getString(R.string.no_reminders)
-            } else if (count == 1) {
-                binding.spTbReminderCount.text = StringBuilder(count.toString()).append(" ").append("reminder")
-            } else {
-                binding.spTbReminderCount.text = StringBuilder(count.toString()).append(" ").append("reminders")
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.remindersCount.collect { count ->
+                    if (count == 0) {
+                        binding.spTbReminderCount.text = getString(R.string.no_reminders)
+                    } else if (count == 1) {
+                        binding.spTbReminderCount.text = StringBuilder(count.toString()).append(" ").append("reminder")
+                    } else {
+                        binding.spTbReminderCount.text = StringBuilder(count.toString()).append(" ").append("reminders")
+                    }
+                }
             }
         }
     }
@@ -95,7 +103,6 @@ class SettingsFragment : Fragment() {
             binding.spTbModePicker.text = getString(R.string.disabled)
         }
 
-
         binding.spDarkModeSwitch.setOnCheckedChangeListener { _, checked ->
             viewModel.updateDarkMode(checked)
 
@@ -113,5 +120,4 @@ class SettingsFragment : Fragment() {
 
         }
     }
-
 }

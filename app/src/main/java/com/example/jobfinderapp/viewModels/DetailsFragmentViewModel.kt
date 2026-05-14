@@ -1,7 +1,5 @@
 package com.example.jobfinderapp.viewModels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jobfinderapp.data.entity.AppliedJob
@@ -12,28 +10,47 @@ import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailsFragmentViewModel @Inject constructor(private val interActor: InterActor) : ViewModel() {
 
-    private val _jobsContainer = MutableLiveData<JobUIModel>()
-    val jobsContainer: LiveData<JobUIModel> = _jobsContainer
+    private val _jobsContainer = MutableStateFlow<JobUIModel?>(null)
+    val jobsContainer = _jobsContainer.asStateFlow()
 
-    private val _applyState = MutableLiveData<Boolean>()
-    val applyState: LiveData<Boolean> = _applyState
+    private val _applyState = MutableSharedFlow<Unit>()
+    val applyState = _applyState.asSharedFlow()
+
+    private val jobIdFlow = MutableStateFlow<String?>(null)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val reminderFlow = jobIdFlow
+        .filterNotNull()
+        .flatMapLatest { jobId ->
+            interActor.getFromRemindersByJobID(jobId)
+        }
+        .stateIn(viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList())
 
 
     fun toggleSaved(job: Job) {
-        val current = _jobsContainer.value ?: return
 
-        val updated = current.copy(
-            isSaved = !current.isSaved
-        )
-
-        _jobsContainer.value = updated
-
+        _jobsContainer.update { current ->
+            current?.copy(
+                isSaved = !current.isSaved
+            )
+        }
 
         viewModelScope.launch {
             interActor.toggleSaved(job)
@@ -48,19 +65,23 @@ class DetailsFragmentViewModel @Inject constructor(private val interActor: Inter
             isApplied = !current.isApplied
         )
 
-        _jobsContainer.value = updated
-
-        _applyState.value = true
+        _jobsContainer.update {
+            updated
+        }
 
         viewModelScope.launch {
             interActor.toggleApplied(
                 AppliedJob(updated.job, toggleAt)
             )
+
+            _applyState.emit(Unit)
         }
     }
 
     fun insertToJobsContainer(jobUIModel: JobUIModel) {
-        _jobsContainer.value = jobUIModel
+        _jobsContainer.update {
+            jobUIModel
+        }
     }
 
     fun insertSharedJob() {
@@ -107,8 +128,11 @@ class DetailsFragmentViewModel @Inject constructor(private val interActor: Inter
         }
     }
 
-    fun getRemindersByJobId(jobId: String): LiveData<List<ReminderEntity>> =
-        interActor.getFromRemindersByJobID(jobId)
+    fun updateJobId(jobId: String) {
+        jobIdFlow.update {
+            jobId
+        }
+    }
 
     fun getSharedJobByJobIdOnce(jobId: String) {
         viewModelScope.launch {

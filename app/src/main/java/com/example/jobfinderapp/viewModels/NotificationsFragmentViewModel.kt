@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.viewModels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jobfinderapp.data.entity.ReminderEntity
@@ -8,14 +7,20 @@ import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotificationsFragmentViewModel @Inject constructor(private val interActor: InterActor) : ViewModel() {
 
-    fun getAllReminders(): LiveData<List<ReminderEntity>> =
-        interActor.getFromRemindersAll()
+    val allRemindersFlow = interActor.getFromRemindersAll()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     fun deleteReminder(reminder: ReminderEntity) {
         viewModelScope.launch {

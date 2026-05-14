@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.domain
 
-import androidx.lifecycle.LiveData
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.AppRepository
 import com.example.jobfinderapp.data.entity.AppliedJob
@@ -9,6 +8,7 @@ import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -23,13 +23,13 @@ class InterActor @Inject constructor(private val repo: AppRepository) {
 
 
     //LOCAL DB
-    fun getJobsUIModelDB(): LiveData<List<JobUIModel>> = repo.getJobsUIModelDB()
-    fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>> = repo.getJobsBySalaryAscDB()
-    fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>> = repo.getJobsBySalaryDescDB()
+    fun getJobsUIModelDB(): Flow<List<JobUIModel>> = repo.getJobsUIModelDB()
+    fun getJobsBySalaryAscDB(): Flow<List<JobUIModel>> = repo.getJobsBySalaryAscDB()
+    fun getJobsBySalaryDescDB(): Flow<List<JobUIModel>> = repo.getJobsBySalaryDescDB()
 
-    fun getOnlySavedJobsFromDB(): LiveData<List<JobUIModel>> = repo.savedJobs
+    fun getOnlySavedJobsFromDB(): Flow<List<JobUIModel>> = repo.savedJobs
 
-    fun getOnlyAppliedJobsFromDB(): LiveData<List<JobUIModel>> = repo.appliedJobs
+    fun getOnlyAppliedJobsFromDB(): Flow<List<JobUIModel>> = repo.appliedJobs
 
     suspend fun clearAndInsertJobsDB(jobs: List<Job>) = repo.clearAndInsertJobsDB(jobs)
 
@@ -54,7 +54,6 @@ class InterActor @Inject constructor(private val repo: AppRepository) {
 
 
 
-
     suspend fun insertToReminders(reminderEntity: ReminderEntity): Long {
         return repo.insertToReminders(reminderEntity)
     }
@@ -70,11 +69,11 @@ class InterActor @Inject constructor(private val repo: AppRepository) {
     suspend fun getRemindersListByJobIdOnce(jobId: String): List<ReminderEntity> =
         repo.getRemindersListByJobIdOnce(jobId)
 
-    fun getFromRemindersAll(): LiveData<List<ReminderEntity>> {
+    fun getFromRemindersAll(): Flow<List<ReminderEntity>> {
         return repo.getFromRemindersAll()
     }
 
-    fun getFromRemindersByJobID(jobID: String): LiveData<List<ReminderEntity>> {
+    fun getFromRemindersByJobID(jobID: String): Flow<List<ReminderEntity>> {
         return repo.getFromRemindersByJobID(jobID)
     }
 }

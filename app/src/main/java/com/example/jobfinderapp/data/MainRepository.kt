@@ -1,6 +1,5 @@
 package com.example.jobfinderapp.data
 
-import androidx.lifecycle.LiveData
 import com.example.jobfinderapp.utils.ApiConst
 import com.example.jobfinderapp.utils.CountryCode
 import com.example.jobfinderapp.entity.JobFilter
@@ -14,6 +13,7 @@ import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
 import com.example.jobfinderapp.utils.AlarmScheduler
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -48,13 +48,13 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
 
 
     //MAIN table
-    override fun getJobsUIModelDB(): LiveData<List<JobUIModel>> =
+    override fun getJobsUIModelDB(): Flow<List<JobUIModel>> =
         jobDao.getAllJobs()
 
-    override fun getJobsBySalaryAscDB(): LiveData<List<JobUIModel>> =
+    override fun getJobsBySalaryAscDB(): Flow<List<JobUIModel>> =
         jobDao.getJobsBySalaryAsc()
 
-    override fun getJobsBySalaryDescDB(): LiveData<List<JobUIModel>> =
+    override fun getJobsBySalaryDescDB(): Flow<List<JobUIModel>> =
         jobDao.getJobsBySalaryDesc()
 
     override val savedJobs = jobDao.getSavedJobs()
@@ -92,7 +92,7 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         jobDao.clearAndInsertJobs(jobs)
     }
 
-    override fun getJobById(id: String): LiveData<JobUIModel?> {
+    override fun getJobById(id: String): Flow<JobUIModel?> {
         return jobDao.getJobById(id)
     }
 
@@ -111,7 +111,7 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         jobDao.deleteFromSharedTable(sharedJobs)
     }
 
-    override fun getSharedJob(sharedId: String): LiveData<JobUIModel> =
+    override fun getSharedJob(sharedId: String): Flow<JobUIModel> =
         jobDao.getSharedJobById(sharedId)
 
 
@@ -142,11 +142,11 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
     override suspend fun getRemindersListByJobIdOnce(jobId: String): List<ReminderEntity> =
         jobDao.getRemindersListByJobIdOnce(jobId)
 
-    override fun getFromRemindersAll(): LiveData<List<ReminderEntity>> {
+    override fun getFromRemindersAll(): Flow<List<ReminderEntity>> {
         return jobDao.getFromReminderTable()
     }
 
-    override fun getFromRemindersByJobID(jobID: String): LiveData<List<ReminderEntity>> {
+    override fun getFromRemindersByJobID(jobID: String): Flow<List<ReminderEntity>> {
         return jobDao.getFromReminderTableByJobID(jobID)
     }
 }

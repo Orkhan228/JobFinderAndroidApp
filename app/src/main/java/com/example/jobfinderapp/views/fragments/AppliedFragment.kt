@@ -15,6 +15,9 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -27,6 +30,7 @@ import com.example.jobfinderapp.viewModels.AppliedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.AppliedJobAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecorationHf
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AppliedFragment : Fragment(), ReselectedScroll {
@@ -107,25 +111,31 @@ class AppliedFragment : Fragment(), ReselectedScroll {
         binding.appliedRecyclerView.adapter = adapter
         binding.appliedRecyclerView.addItemDecoration(itemDec)
 
-        viewModel.appliedJobs.observe(viewLifecycleOwner) { jobsUIModelList ->
-            val listState = jobsUIModelList.isNullOrEmpty()
 
-            if (listState) {
-                showEmptyState(binding.noAppliedJobsLay, binding.noAppliedJobsIv,
-                    binding.noAppliedJobsTv, binding.noAppliedJobsTv1, binding.noAppliedJobsBtn)
-            }
-            else {
-                binding.noAppliedJobsLay.visibility = View.GONE
-                binding.appliedRecyclerView.visibility = View.VISIBLE
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.appliedJobsFlow.collect { jobsUIModelList ->
 
-            adapter.submitList(jobsUIModelList){
-                if (!didRunEnterAnimationForRv) {
-                    binding.appliedRecyclerView.scheduleLayoutAnimation()
-                    didRunEnterAnimationForRv = true
+                    val listState = jobsUIModelList.isEmpty()
+
+                    if (listState) {
+                        showEmptyState(binding.noAppliedJobsLay, binding.noAppliedJobsIv,
+                            binding.noAppliedJobsTv, binding.noAppliedJobsTv1, binding.noAppliedJobsBtn)
+                    }
+                    else {
+                        binding.noAppliedJobsLay.visibility = View.GONE
+                        binding.appliedRecyclerView.visibility = View.VISIBLE
+                    }
+
+                    adapter.submitList(jobsUIModelList){
+                        if (!didRunEnterAnimationForRv) {
+                            binding.appliedRecyclerView.scheduleLayoutAnimation()
+                            didRunEnterAnimationForRv = true
+                        }
+                    }
+
                 }
             }
-
         }
 
         binding.noAppliedJobsBtn.setOnClickListener {

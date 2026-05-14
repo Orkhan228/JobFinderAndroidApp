@@ -3,8 +3,9 @@ package com.example.jobfinderapp.utils
 import android.content.SharedPreferences
 import javax.inject.Inject
 import androidx.core.content.edit
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 class AppPrefsImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences,
@@ -15,20 +16,21 @@ class AppPrefsImpl @Inject constructor(
         private const val KEY_COUNTRY_SELECT = "country_selection"
     }
 
-    private val selectedCountryLiveData = MutableLiveData<String>(getSelectedCountry())
+    private val selectedCountryFlow = MutableStateFlow<String>(getSelectedCountry())
 
     override fun setCountry(countryCode: String) {
         sharedPreferences.edit { putString(KEY_COUNTRY_SELECT, countryCode) }
 
-        selectedCountryLiveData.postValue(countryCode)
+        selectedCountryFlow.update {
+            countryCode
+        }
     }
 
     override fun getSelectedCountry(): String {
         return sharedPreferences.getString(KEY_COUNTRY_SELECT, "gb") ?: "gb"
     }
 
-    override fun observeSelectedCountry(): LiveData<String> = selectedCountryLiveData
-
+    override fun observeSelectedCountryFlow(): StateFlow<String> = selectedCountryFlow
 
     override fun setDarkTheme(enabled: Boolean) {
         sharedPreferences.edit { putBoolean(KEY_DARK_THEME, enabled) }

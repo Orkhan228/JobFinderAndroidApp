@@ -1,7 +1,7 @@
 package com.example.jobfinderapp.utils
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.StateFlow
 
 interface NetworkMonitor {
-    val isConnected: LiveData<Boolean>
+    val isConnected: StateFlow<Boolean>
 }

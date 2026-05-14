@@ -13,6 +13,9 @@ import androidx.core.view.updatePadding
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +27,7 @@ import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SavedFragment : Fragment(), ReselectedScroll {
@@ -85,29 +89,29 @@ class SavedFragment : Fragment(), ReselectedScroll {
             binding.savedRecyclerView.addItemDecoration(itemDec)
         }
 
-
-        sfViewModel.savedJobsUI.observe(viewLifecycleOwner) { savedJobList ->
-
-            if (savedJobList.isNullOrEmpty()) {
-                binding.savedRecyclerView.visibility = View.GONE
-                showEmptyState(binding.noSavedJobsLay, binding.noSavedIv, binding.noSavedTv, binding.noSavedTvDesc)
-            } else {
-                binding.noSavedJobsLay.visibility = View.GONE
-                binding.savedRecyclerView.isVisible = true
-                savedJobsAdapter.submitList(savedJobList) {
-                    if (!didRunEnterAnimationForRv) {
-                        binding.savedRecyclerView.scheduleLayoutAnimation()
-                        didRunEnterAnimationForRv = true
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sfViewModel.savedJobs.collect { savedJobList ->
+                    if (savedJobList.isEmpty()) {
+                        binding.savedRecyclerView.visibility = View.GONE
+                        showEmptyState(binding.noSavedJobsLay, binding.noSavedIv, binding.noSavedTv, binding.noSavedTvDesc)
+                    } else {
+                        binding.noSavedJobsLay.visibility = View.GONE
+                        binding.savedRecyclerView.isVisible = true
+                        savedJobsAdapter.submitList(savedJobList) {
+                            if (!didRunEnterAnimationForRv) {
+                                binding.savedRecyclerView.scheduleLayoutAnimation()
+                                didRunEnterAnimationForRv = true
+                            }
+                        }
                     }
                 }
             }
-
         }
-
     }
 
     private fun openDetails(jobUIModel: JobUIModel, v: View) {
-        val trName = "job_title${jobUIModel.job.title}"
+        val trName = "job_title${jobUIModel.job.id}"
 
         val extras = FragmentNavigatorExtras(v to trName)
 

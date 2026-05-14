@@ -45,8 +45,12 @@ import com.example.jobfinderapp.viewModels.DetailsFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.ReminderAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.jobfinderapp.utils.AppLogger
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DetailsFragment : Fragment() {
@@ -65,7 +69,6 @@ class DetailsFragment : Fragment() {
     private var backCallback: OnBackPressedCallback? = null
 
     private lateinit var reminderAdapter: ReminderAdapter
-    private var observedReminderJobId: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -156,6 +159,16 @@ class DetailsFragment : Fragment() {
 
         setReminderRecycler()
 
+        observeReminders()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.applyState.collect { state ->
+                    animateAppliedBtnInf()
+                }
+            }
+        }
+
         binding.detReminderCreateBtn.setOnClickListener {
             if (ensureExactAlarmPermission()) {
                 requestNotificationPermissionIfNeeded()
@@ -209,56 +222,60 @@ class DetailsFragment : Fragment() {
             viewModel.toggleApplied(System.currentTimeMillis())
         }
 
-        viewModel.applyState.observe(viewLifecycleOwner) { state ->
-            if (state) {
-                animateAppliedBtnInf()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.jobsContainer.collect { jobUIModel ->
+                    jobUIModel?.let {
+                        currentJob = it
+                        val job = it.job
+
+                        ViewCompat.setTransitionName(binding.detMainCardLay, "job_title${job.id}")
+
+                        startPostponedEnterTransition()
+
+                        binding.detJobNameTv.text = job.title
+                        binding.detCompanyNameTv.text = job.company.display_name
+
+                        val spannablePostedText = SpannableString(job.createdTime)
+                        val spl = job.createdTime.split(" ")
+                        spannablePostedText.setSpan(
+                            StyleSpan(Typeface.BOLD), spl[0].length + 1, job.createdTime.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        binding.detCalendarTextView.text = spannablePostedText
+
+                        binding.detContractTimeTv.text = job.contract_time
+
+                        if (job.category.label != "Not specified") {
+                            binding.detCategoryTv.visibility = View.VISIBLE
+                            binding.detCategoryTv.text = job.category.label
+                        } else binding.detCategoryTv.visibility = View.GONE
+
+                        binding.detContractTypeTv.text = job.contract_type
+                        binding.detSalaryRangeTv.text =
+                            requireContext().getString(
+                                R.string.job_salary_single,
+                                job.salary_max / 1000
+                            )
+                        binding.detLocationDisplayNameTv.text = job.location.display_name
+                        binding.detLocationCountryNameTv.text =
+                            JobCountries.countriesLocationCodeToNorm[job.location.area.getOrNull(0)
+                                ?: ""]
+                        binding.detInfoAboutRoleTv.text = job.description
+
+                        updateApplyBtn(it.isApplied)
+
+                        // обновляем состояние избранного
+                        isSaved = it.isSaved
+                        updateSaveIcon()
+
+                        viewModel.updateJobId(job.id)
+
+                    } ?: AppLogger.e("Details Fragment", "No job for details")
+                }
+
             }
         }
-
-        viewModel.jobsContainer.observe(viewLifecycleOwner) {
-            currentJob = it
-            val job = it.job
-
-            ViewCompat.setTransitionName(binding.detMainCardLay, "job_title${job.id}")
-
-            startPostponedEnterTransition()
-
-            binding.detJobNameTv.text = job.title
-            binding.detCompanyNameTv.text = job.company.display_name
-
-            val spannablePostedText = SpannableString(job.createdTime)
-            val spl = job.createdTime.split(" ")
-            spannablePostedText.setSpan(StyleSpan(Typeface.BOLD), spl[0].length + 1, job.createdTime.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE )
-            binding.detCalendarTextView.text = spannablePostedText
-
-            binding.detContractTimeTv.text = job.contract_time
-
-            if (job.category.label != "Not specified") {
-                binding.detCategoryTv.visibility = View.VISIBLE
-                binding.detCategoryTv.text = job.category.label
-            } else binding.detCategoryTv.visibility = View.GONE
-
-            binding.detContractTypeTv.text = job.contract_type
-            binding.detSalaryRangeTv.text =
-                requireContext().getString(R.string.job_salary_single, job.salary_max / 1000)
-            binding.detLocationDisplayNameTv.text = job.location.display_name
-            binding.detLocationCountryNameTv.text =
-                JobCountries.countriesLocationCodeToNorm[job.location.area.getOrNull(0) ?: ""]
-            binding.detInfoAboutRoleTv.text = job.description
-
-            updateApplyBtn(it.isApplied)
-
-            // обновляем состояние избранного
-            isSaved = it.isSaved
-            updateSaveIcon()
-
-            if (observedReminderJobId != job.id) {
-                observedReminderJobId = job.id
-                observeReminders(job.id)
-            }
-        }
-
     }
 
     private val notificationPermissionLauncher =
@@ -296,18 +313,21 @@ class DetailsFragment : Fragment() {
         return true
     }
 
-    private fun observeReminders(jobId: String) {
+    private fun observeReminders() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.reminderFlow.collect { remindersList ->
+                    if (remindersList.isEmpty()) {
+                        binding.detReminderRecyclerView.visibility = View.GONE
+                        binding.detReminderNoRemTv.visibility = View.VISIBLE
+                    } else {
+                        binding.detReminderNoRemTv.visibility = View.GONE
+                        binding.detReminderRecyclerView.visibility = View.VISIBLE
+                    }
 
-        viewModel.getRemindersByJobId(jobId).observe(viewLifecycleOwner) { remindersList ->
-            if (remindersList.isNullOrEmpty()) {
-                binding.detReminderRecyclerView.visibility = View.GONE
-                binding.detReminderNoRemTv.visibility = View.VISIBLE
-            } else {
-                binding.detReminderNoRemTv.visibility = View.GONE
-                binding.detReminderRecyclerView.visibility = View.VISIBLE
+                    reminderAdapter.submitList(remindersList)
+                }
             }
-
-            reminderAdapter.submitList(remindersList)
         }
     }
 

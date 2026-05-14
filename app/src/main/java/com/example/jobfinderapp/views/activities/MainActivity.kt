@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.example.jobfinderapp.R
@@ -26,6 +29,7 @@ import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
 import com.example.jobfinderapp.utils.ReselectedScroll
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -130,25 +134,27 @@ class MainActivity : AppCompatActivity() {
             item?.isVisible = dest.id != R.id.notificationsFragment
         }
 
-        networkMonitor.isConnected.observe(this) { connected ->
-
-            if (!connected) {
-                binding.maNetworkProblemTv.apply {
-                    isVisible = true
-                    alpha = 0f
-                    animate()
-                        .alpha(1f)
-                        .setDuration(200)
-                        .start()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                networkMonitor.isConnected.collect { connected ->
+                    if (!connected) {
+                        binding.maNetworkProblemTv.apply {
+                            isVisible = true
+                            alpha = 0f
+                            animate()
+                                .alpha(1f)
+                                .setDuration(200)
+                                .start()
+                        }
+                    } else {
+                        binding.maNetworkProblemTv.animate()
+                            .alpha(0f)
+                            .setDuration(200)
+                            .withEndAction { binding.maNetworkProblemTv.isVisible = false }
+                            .start()
+                    }
                 }
-            } else {
-                binding.maNetworkProblemTv.animate()
-                    .alpha(0f)
-                    .setDuration(200)
-                    .withEndAction { binding.maNetworkProblemTv.isVisible = false }
-                    .start()
             }
-
         }
     }
 

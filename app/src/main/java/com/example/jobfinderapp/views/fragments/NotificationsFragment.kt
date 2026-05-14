@@ -17,6 +17,9 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jobfinderapp.R
@@ -26,6 +29,7 @@ import com.example.jobfinderapp.viewModels.NotificationsFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.NotificationAdapter
 import com.example.jobfinderapp.views.rv_helpers.ItemDecReminderRv
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NotificationsFragment : Fragment() {
@@ -74,7 +78,6 @@ class NotificationsFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-
         setFragmentResultListener(ReminderDialogFragment.REQUEST_KEY) { _, bundle ->
 
             val reminderID = bundle.getLong(ReminderDialogFragment.BUNDLE_ID)
@@ -113,23 +116,28 @@ class NotificationsFragment : Fragment() {
     }
 
     private fun observeAllReminders() {
-        viewModel.getAllReminders().observe(viewLifecycleOwner) { remindersList ->
 
-            if (remindersList.isNullOrEmpty()) {
-                binding.notificationsRecyclerView.visibility = View.GONE
-                showEmptyState(binding.noNotificationsLay, binding.noNotificationsIv, binding.noNotificationsTv, binding.noNotificationsTv1, binding.noNotificationsBtn)
-            } else {
-                binding.noNotificationsLay.visibility = View.GONE
-                binding.notificationsRecyclerView.visibility = View.VISIBLE
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.allRemindersFlow.collect { remindersList ->
+                    if (remindersList.isEmpty()) {
+                        binding.notificationsRecyclerView.visibility = View.GONE
+                        showEmptyState(binding.noNotificationsLay, binding.noNotificationsIv, binding.noNotificationsTv, binding.noNotificationsTv1, binding.noNotificationsBtn)
+                    } else {
+                        binding.noNotificationsLay.visibility = View.GONE
+                        binding.notificationsRecyclerView.visibility = View.VISIBLE
+                    }
 
-            notificationAdapter.submitList(remindersList) {
-                if (!didRunEnterAnimationForRv) {
-                    binding.notificationsRecyclerView.scheduleLayoutAnimation()
-                    didRunEnterAnimationForRv = true
+                    notificationAdapter.submitList(remindersList) {
+                        if (!didRunEnterAnimationForRv) {
+                            binding.notificationsRecyclerView.scheduleLayoutAnimation()
+                            didRunEnterAnimationForRv = true
+                        }
+                    }
                 }
             }
         }
+
     }
 
     private fun setUpRecycler() {

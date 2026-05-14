@@ -1,11 +1,6 @@
 package com.example.jobfinderapp.viewModels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.entity.JobFilter
@@ -13,8 +8,8 @@ import com.example.jobfinderapp.domain.InterActor
 import com.example.jobfinderapp.entity.Category
 import com.example.jobfinderapp.entity.Country
 import com.example.jobfinderapp.data.entity.Job
-import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.entity.Company
+import com.example.jobfinderapp.entity.HomeUiState
 import com.example.jobfinderapp.entity.JobSortType
 import com.example.jobfinderapp.entity.Location
 import com.example.jobfinderapp.entity.Result
@@ -22,118 +17,172 @@ import com.example.jobfinderapp.utils.AppLogger
 import com.example.jobfinderapp.utils.AppPrefs
 import com.example.jobfinderapp.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class HomeFragViewModel @Inject constructor(private val interActor: InterActor, private val networkMonitor: NetworkMonitor, private val appPrefs: AppPrefs) : ViewModel() {
 
     //DB
-    private val _jobsUIModel = MediatorLiveData<List<JobUIModel>>()
-    val jobsUIModel: LiveData<List<JobUIModel>> = _jobsUIModel
+    private val jobSortTypeFlow = MutableStateFlow<JobSortType>(JobSortType.DEFAULT)
 
-    private var currentJobsSource: LiveData<List<JobUIModel>>? = null
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val jobUIModelFlow = jobSortTypeFlow
+        .flatMapLatest { sortType ->
+            when(sortType) {
+                JobSortType.DEFAULT -> interActor.getJobsUIModelDB()
+                JobSortType.SALARY_ASC -> interActor.getJobsBySalaryAscDB()
+                JobSortType.SALARY_DESC -> interActor.getJobsBySalaryDescDB()
+            }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     private var wasOffline = false
 
     //текущий фильтр
-    private val _filter = MutableLiveData<JobFilter>()
-    val filter: LiveData<JobFilter> = _filter
+    private val _filter = MutableStateFlow<JobFilter>(createDefaultFilter())
+    val filter: StateFlow<JobFilter> = _filter.asStateFlow()
 
     //состояние интернета
-    private val _internetState = MutableLiveData<Boolean>()
-    val internetState: LiveData<Boolean> = _internetState
+    val internetState: StateFlow<Boolean> = networkMonitor.isConnected
 
-    //переменные для подписки на изменения выбора страны из настроек через sharedPref
-    private val selectedCountryLiveData by lazy { appPrefs.observeSelectedCountry() }
-    private val selectedCountryObserver = Observer<String> { newCountryCode ->
-        val currentFilter = _filter.value ?: createDefaultFilter()
+    val homeUIStateFlow: StateFlow<HomeUiState> = combine(internetState, jobUIModelFlow) { isConn, jobUIModelList ->
 
-        if (currentFilter.country.code != newCountryCode) {
-            val updatedFilter = currentFilter.copy(
-                country = Country(
-                    getCountryNameByCode(newCountryCode),
-                    newCountryCode
-                ),
-                locations = emptyList()
-            )
+        HomeUiState(
+            jobs = jobUIModelList,
+            isConnected = isConn,
+            showNoResults = isConn && jobUIModelList.isEmpty(),
+            showNoInternet = !isConn && jobUIModelList.isEmpty()
+        )
 
-            _filter.value = updatedFilter
-            loadFilteredJobList(updatedFilter)
-        }
-    }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        HomeUiState()
+    )
 
-    //Создаем liveData от другого liveData, посредством map, в сравнение не берем такие параметры как, locations и searchKeyWords
+    //переменная для подписки на изменения выбора страны из настроек через sharedPref
+    private val selectedCountryFromSharedPrefFlow = appPrefs.observeSelectedCountryFlow()
+
+    //в сравнение не берем такие параметры как, locations и searchKeyWords
     val filterState = _filter.map { current ->
         val default = createDefaultFilter()
 
-        val isBaseChanged = current.copy(locations = default.locations, searchKeyWords = default.searchKeyWords) != default
+        val isBaseChanged = current.copy(
+            locations = default.locations,
+            searchKeyWords = default.searchKeyWords
+        ) != default
 
         val hasUserLocations = (current.locations?.size ?: 0) > 1
 
         isBaseChanged || hasUserLocations
-    }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        false
+    )
 
-    private val _hasPendingFilterChanges = MutableLiveData(false)
-    val hasPendingFilterChanges: LiveData<Boolean> = _hasPendingFilterChanges
+    private val _hasPendingFilterChanges = MutableStateFlow<Boolean>(false)
+    val hasPendingFilterChanges: StateFlow<Boolean> = _hasPendingFilterChanges.asStateFlow()
 
     //State for pagination
     var isLoading = false
     var isLastPage = false
     var currentPage = 1
-    
+
     private val PAGE_SIZE = 10
 
-    private val _filterBadgeCount = MediatorLiveData<Int>()
-    val filterBadgeCount: LiveData<Int> = _filterBadgeCount
-
-    //Чтобы показать, сколько фильтров установлено, только после того, как филтр был применен. То есть нажата кнопка search
-    private val _isFilterInstalled = MutableLiveData<Boolean>(false)
-    val isFilterInstalled: LiveData<Boolean> = _isFilterInstalled
+    //Чтобы показать, сколько фильтров установлено, только после того, как фильтр был применен. То есть нажата кнопка search
+    private val _isFilterInstalled = MutableStateFlow<Boolean>(false)
 
     private var lastAppliedFilter: JobFilter? = null
 
-    private val networkObserver = Observer<Boolean> { connected ->
-        if (!connected) {
-            _internetState.value = false
-            wasOffline = true
-        }
-        if (connected && wasOffline) {
-            _internetState.value = true
-            wasOffline = false
-            loadNextPage()
-        }
-    }
+    val filterBadgeCountFlow: StateFlow<Int> = _isFilterInstalled.combine(_filter) { isInstalled, filter ->
+        if (isInstalled) getSelectedFilterCount(filter)
+        else 0
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        0
+    )
+
+    private val _searchKeyWordsFlow = MutableStateFlow<String?>(_filter.value.searchKeyWords)
 
     init {
-        observeJobsFromDb(JobSortType.DEFAULT)
+        loadFilteredJobList(_filter.value)
 
-        val initialFilter = createDefaultFilter()
-        _filter.value = initialFilter
-        loadFilteredJobList(initialFilter)
+        viewModelScope.launch {
+            networkMonitor.isConnected.collect { connected ->
+                if (!connected) {
+                    wasOffline = true
+                }
+                if (connected && wasOffline) {
+                    wasOffline = false
+                    loadNextPage()
+                }
+            }
+        }
 
-        _filterBadgeCount.addSource(_isFilterInstalled) { updateBadge() }
-        _filterBadgeCount.addSource(filter) { updateBadge() }
+        viewModelScope.launch {
+            selectedCountryFromSharedPrefFlow.collect { newCountryCode ->
+                val currentFilter = _filter.value
 
-        networkMonitor.isConnected.observeForever(networkObserver)
-        selectedCountryLiveData.observeForever(selectedCountryObserver)
+                if (currentFilter.country.code != newCountryCode) {
+                    val updatedFilter = currentFilter.copy(
+                        country = Country(
+                            getCountryNameByCode(newCountryCode),
+                            newCountryCode
+                        ),
+                        locations = emptyList()
+                    )
+
+                    _filter.value = updatedFilter
+                    loadFilteredJobList(updatedFilter)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            _searchKeyWordsFlow
+                .debounce(400)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    val curr = _filter.value
+
+                    if (curr.searchKeyWords != query ) {
+                        val newFilter = curr.copy(searchKeyWords = query)
+                        _filter.update { newFilter }
+
+                        loadFilteredJobList(newFilter)
+                    }
+                }
+        }
     }
 
     private fun observeJobsFromDb(sortType: JobSortType) {
-        currentJobsSource?.let { _jobsUIModel.removeSource(it) }
-
-        val newSource = when (sortType) {
-            JobSortType.DEFAULT -> interActor.getJobsUIModelDB()
-            JobSortType.SALARY_ASC -> interActor.getJobsBySalaryAscDB()
-            JobSortType.SALARY_DESC -> interActor.getJobsBySalaryDescDB()
-        }
-
-        currentJobsSource = newSource
-        _jobsUIModel.addSource(newSource) { jobs ->
-            _jobsUIModel.value = jobs
+        jobSortTypeFlow.update {
+            sortType
         }
     }
-
 
     private fun createDefaultFilter(): JobFilter {
         val countryCode = appPrefs.getSelectedCountry()
@@ -151,108 +200,23 @@ class HomeFragViewModel @Inject constructor(private val interActor: InterActor, 
         JobCountries.countriesMapNorm[countryCode] ?: "Great Britain"
 
     fun applyFilter() {
-        val filter = _filter.value ?: return
+        val filter = _filter.value
 
         loadFilteredJobList(filter)
         observeJobsFromDb(filter.sortBy)
 
-        _hasPendingFilterChanges.value = false
+        _hasPendingFilterChanges.update {
+            false
+        }
     }
-
 
     fun installFilter(isInstalled: Boolean) {
-        _isFilterInstalled.value = isInstalled
-    }
-
-    private fun updateBadge() {
-        val count = getSelectedFilterCount()
-        val installed = _isFilterInstalled.value ?: false
-
-        _filterBadgeCount.value = if (installed) count else 0
-    }
-
-    fun toggleSaved(job: Job) {
-        viewModelScope.launch {
-            interActor.toggleSaved(job)
+        _isFilterInstalled.update {
+            isInstalled
         }
     }
 
-    fun onFullTimeChecked(checked: Boolean) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(onlyFullTime = checked)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onPartTimeChecked(checked: Boolean) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(onlyPartTime = checked)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onContractChecked(checked: Boolean) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(onlyContractJobs = checked)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onPermanentChecked(checked: Boolean) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(onlyPermanentJobs = checked)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onCategoryChecked(category: Category) {
-        val curr = _filter.value ?: return
-        _filter.value = curr.copy(category = category)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onLocationChecked(locations: List<String>) {
-        val curr = _filter.value ?: return
-
-        if (curr.locations == locations) return
-
-        _filter.value = curr.copy(locations = locations)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onCountryChanged(country: Country) {
-        val curr = _filter.value ?: return
-
-        if (curr.country.code == country.code) return
-
-        _filter.value = curr.copy(country = country)
-        _hasPendingFilterChanges.value = true
-    }
-
-    fun onSortByChecked(sortType: JobSortType) {
-        val curr = _filter.value ?: return
-
-        _filter.value = curr.copy(sortBy = sortType)
-        _hasPendingFilterChanges.value = true
-    }
-
-
-    fun onSearchKeyWordsChanged(words: String?) {
-        val curr = _filter.value ?: return
-
-        if (words == null) {
-            val newFilter = curr.copy(searchKeyWords = words)
-            _filter.value = newFilter
-
-            loadFilteredJobList(newFilter)
-        }
-
-        if (curr.searchKeyWords != words) {
-            val newFilter = curr.copy(searchKeyWords = words)
-            _filter.value = newFilter
-
-            loadFilteredJobList(newFilter)
-        }
-    }
-
-    fun getSelectedFilterCount(): Int {
-        val currFilter = _filter.value ?: return 0
+    fun getSelectedFilterCount(currFilter: JobFilter): Int {
         val defFiler = createDefaultFilter()
 
         var resCount = 0
@@ -262,7 +226,7 @@ class HomeFragViewModel @Inject constructor(private val interActor: InterActor, 
         if (currFilter.onlyContractJobs != defFiler.onlyContractJobs) resCount++
         if (currFilter.onlyPermanentJobs != defFiler.onlyPermanentJobs) resCount++
         if (currFilter.category != defFiler.category) resCount++
-        if (!currFilter.locations.isNullOrEmpty() && currFilter.locations.size > 1 ) resCount++
+        if (!currFilter.locations.isNullOrEmpty() && currFilter.locations.size > 1) resCount++
         if (currFilter.country != defFiler.country) resCount++
         if (currFilter.sortBy != defFiler.sortBy) resCount++
         if (currFilter.sortDirection != defFiler.sortDirection) resCount++
@@ -270,12 +234,112 @@ class HomeFragViewModel @Inject constructor(private val interActor: InterActor, 
         return resCount
     }
 
+    fun toggleSaved(job: Job) {
+        viewModelScope.launch {
+            interActor.toggleSaved(job)
+        }
+    }
+
+    fun onFullTimeChecked(checked: Boolean) {
+        _filter.update { curr ->
+            if (curr.onlyFullTime != checked) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(onlyFullTime = checked)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onPartTimeChecked(checked: Boolean) {
+        _filter.update { curr ->
+            if (curr.onlyPartTime != checked) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(onlyPartTime = checked)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onContractChecked(checked: Boolean) {
+        _filter.update { curr ->
+            if (curr.onlyContractJobs != checked) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(onlyContractJobs = checked)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onPermanentChecked(checked: Boolean) {
+        _filter.update { curr ->
+            if (curr.onlyPermanentJobs != checked) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(onlyPermanentJobs = checked)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onCategoryChecked(category: Category) {
+        _filter.update { curr ->
+            if (curr.category != category) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(category = category)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onLocationChecked(locations: List<String>) {
+        _filter.update { curr ->
+            if (curr.locations != locations) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(locations = locations)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onCountryChanged(country: Country) {
+        _filter.update { curr ->
+            if (curr.country.code != country.code) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(country = country)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onSortByChecked(sortType: JobSortType) {
+        _filter.update { curr ->
+            if (curr.sortBy != sortType) {
+                _hasPendingFilterChanges.value = true
+                curr.copy(sortBy = sortType)
+            } else {
+                curr
+            }
+        }
+    }
+
+    fun onSearchKeyWordsChangedFlow(words: String?) {
+        _searchKeyWordsFlow.update {
+            words
+        }
+    }
+
     fun resetFilter() {
         _filter.value = createDefaultFilter()
         lastAppliedFilter = createDefaultFilter()
         loadFilteredJobList(lastAppliedFilter ?: createDefaultFilter())
 
-        _hasPendingFilterChanges.value = false
+        _hasPendingFilterChanges.update { false }
     }
 
     private fun loadPage(filter: JobFilter) {
@@ -348,7 +412,6 @@ class HomeFragViewModel @Inject constructor(private val interActor: InterActor, 
         loadPage(filter)
     }
 
-
     //В бд нельзя ложить данные, если они указаны как non-nullable, а в Job по умолчанию такие есть, поэтому приходиться применять вот этот метод.
     fun releaseNullableFromDB(resList: List<Result>) =
         resList.map { resItem ->
@@ -412,12 +475,4 @@ class HomeFragViewModel @Inject constructor(private val interActor: InterActor, 
                 contract_type = contractType
             )
         }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        networkMonitor.isConnected.removeObserver(networkObserver)
-        selectedCountryLiveData.removeObserver(selectedCountryObserver)
-    }
-
 }

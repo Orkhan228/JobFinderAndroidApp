@@ -3,6 +3,7 @@ package com.example.jobfinderapp.di.modules
 import android.content.Context
 import androidx.room.Room
 import com.example.jobfinderapp.data.dao.JobDao
+import com.example.jobfinderapp.data.dao.JobRemoteKeysDao
 import com.example.jobfinderapp.data.db.JobDatabase
 import dagger.Module
 import dagger.Provides
@@ -27,7 +28,8 @@ object DatabaseModule {
             .build()
 
     @Provides
-    @Singleton
     fun providesJobDao(jobDatabase: JobDatabase): JobDao = jobDatabase.jobDao()
 
+    @Provides
+    fun provideRemoteKeysDao(jobDatabase: JobDatabase): JobRemoteKeysDao = jobDatabase.remoteKeysDao()
 }

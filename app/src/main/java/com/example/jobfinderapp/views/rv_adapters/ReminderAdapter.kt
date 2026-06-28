@@ -1,6 +1,7 @@
 package com.example.jobfinderapp.views.rv_adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -25,37 +26,12 @@ class ReminderAdapter(private val onDeleteClick: (ReminderEntity) -> Unit, priva
                 detReminderItemRCalendar.text = formatter.format(Date(reminder.triggerAtMillis))
 
                 detReminderItemBtnEdit.setOnClickListener { v ->
-                    v.animate()
-                        .scaleX(0.92f)
-                        .scaleY(0.92f)
-                        .setDuration(100)
-                        .withEndAction {
-                            onEditClick.invoke(reminder)
-                            v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .start()
-                        }
-                        .start()
+                    v.animateClick { onEditClick(reminder) }
                 }
 
                 detReminderItemBtnDelete.setOnClickListener { v ->
-                    v.animate()
-                        .scaleX(0.92f)
-                        .scaleY(0.92f)
-                        .setDuration(100)
-                        .withEndAction {
-                            onDeleteClick.invoke(reminder)
-                            v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .start()
-                        }
-                        .start()
+                    v.animateClick { onDeleteClick(reminder) }
                 }
-
             }
         }
     }
@@ -74,6 +50,24 @@ class ReminderAdapter(private val onDeleteClick: (ReminderEntity) -> Unit, priva
         position: Int,
     ) {
         holder.bind(getItem(position))
+    }
+
+    private fun View.animateClick(action: () -> Unit) {
+        animate().cancel()
+
+        animate()
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(100)
+            .withEndAction {
+                action.invoke()
+                animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
     }
 
 }

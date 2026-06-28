@@ -21,7 +21,9 @@ import com.google.android.material.transition.MaterialElevationScale
 
 class CountrySelectorDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentCountrySelectorDialogBinding
+    private var _binding: FragmentCountrySelectorDialogBinding? = null
+    private val binding get() = _binding!!
+
     private val args: CountrySelectorDialogFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +54,7 @@ class CountrySelectorDialogFragment : DialogFragment() {
     ): View? {
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        binding = FragmentCountrySelectorDialogBinding.inflate(inflater, container, false)
+        _binding = FragmentCountrySelectorDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -141,6 +143,13 @@ class CountrySelectorDialogFragment : DialogFragment() {
             }
 
         }
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 
     companion object {

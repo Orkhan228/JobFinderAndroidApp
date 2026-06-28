@@ -4,19 +4,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.jobfinderapp.views.rv_helpers.JobDiffUtil
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.JobItemBinding
 import com.example.jobfinderapp.data.entity.JobUIModel
 
-class JobAdapter(
+class SavedJobAdapter(
     private val onClick: (JobUIModel, View) -> Unit,
     private val onFavClick: (JobUIModel) -> Unit
-) : PagingDataAdapter<JobUIModel, JobAdapter.JobViewHolder>(JobDiffUtil()) {
+) : ListAdapter<JobUIModel, SavedJobAdapter.SavedJobViewHolder>(JobDiffUtil()) {
 
-    inner class JobViewHolder(private val binding: JobItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class SavedJobViewHolder(private val binding: JobItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         //В contractTimeTv и contractTypeTv, я сделал так. Если они не указаны, то берется значение по умолчанию.
         //Еще с salaryTv, сделал через ресурсы, указав целочисленные значения.
@@ -79,19 +79,18 @@ class JobAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ): JobViewHolder {
+    ): SavedJobViewHolder {
         val binding = JobItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return JobViewHolder(binding)
+        return SavedJobViewHolder(binding)
     }
 
     override fun onBindViewHolder(
-        holder: JobViewHolder,
+        holder: SavedJobViewHolder,
         position: Int,
     ) {
         val item = getItem(position)
-        if (item != null) {
-            holder.bind(item)
-        }
+
+        holder.bind(item)
     }
 
     private fun cancelAnimation(v: View) {

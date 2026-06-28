@@ -26,15 +26,17 @@ import com.example.jobfinderapp.databinding.FragmentSavedBinding
 import com.example.jobfinderapp.utils.ReselectedScroll
 import com.example.jobfinderapp.viewModels.SavedFragmentViewModel
 import com.example.jobfinderapp.views.rv_adapters.JobAdapter
+import com.example.jobfinderapp.views.rv_adapters.SavedJobAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SavedFragment : Fragment(), ReselectedScroll {
 
-    private lateinit var binding: FragmentSavedBinding
-    private val sfViewModel: SavedFragmentViewModel by viewModels()
+    private var _binding: FragmentSavedBinding? = null
+    private val binding get() = _binding!!
 
+    private val sfViewModel: SavedFragmentViewModel by viewModels()
     private var didRunEnterAnimationForRv = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +47,7 @@ class SavedFragment : Fragment(), ReselectedScroll {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = FragmentSavedBinding.inflate(inflater, container, false)
+        _binding = FragmentSavedBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -68,7 +70,7 @@ class SavedFragment : Fragment(), ReselectedScroll {
 
         val layManager = LinearLayoutManager(requireContext())
 
-        val savedJobsAdapter = JobAdapter(
+        val savedJobsAdapter = SavedJobAdapter(
             onClick = { jobUIM, v ->
                 openDetails(jobUIM, v)
             },
@@ -196,6 +198,12 @@ class SavedFragment : Fragment(), ReselectedScroll {
             .scaleY(1f)
             .setDuration(300)
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 
     override fun smoothScrollToStart() {

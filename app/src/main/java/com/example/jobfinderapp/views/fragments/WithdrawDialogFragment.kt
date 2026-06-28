@@ -26,7 +26,8 @@ class WithdrawDialogFragment : DialogFragment() {
         }
     }
 
-    private lateinit var binding: WithdrawDialogLayoutBinding
+    private var _binding: WithdrawDialogLayoutBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,7 +38,7 @@ class WithdrawDialogFragment : DialogFragment() {
         //наш закругленный фон, был виден.
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        binding = WithdrawDialogLayoutBinding.inflate(inflater, container, false)
+        _binding = WithdrawDialogLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -144,6 +145,12 @@ class WithdrawDialogFragment : DialogFragment() {
             }
             start()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 
     companion object {

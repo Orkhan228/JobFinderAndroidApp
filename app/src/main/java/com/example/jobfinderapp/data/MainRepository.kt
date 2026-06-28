@@ -1,24 +1,35 @@
 package com.example.jobfinderapp.data
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.example.jobfinderapp.utils.ApiConst
 import com.example.jobfinderapp.utils.CountryCode
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.network.RetrofitService
 import com.example.jobfinderapp.data.dao.JobDao
+import com.example.jobfinderapp.data.db.JobDatabase
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SavedJob
 import com.example.jobfinderapp.data.entity.SharedJobs
+import com.example.jobfinderapp.data.paging.JobHFRemoteMediator
 import com.example.jobfinderapp.entity.JobDTO
 import com.example.jobfinderapp.utils.AlarmScheduler
+import com.example.jobfinderapp.utils.SettingsDataStore
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import javax.inject.Inject
 
-class MainRepository @Inject constructor(private val api: RetrofitService, private val jobDao: JobDao,
-    private val alarmScheduler: AlarmScheduler) : AppRepository {
+class MainRepository @Inject constructor(
+    private val api: RetrofitService,
+    private val database: JobDatabase,
+    private val jobDao: JobDao,
+    private val alarmScheduler: AlarmScheduler,
+) : AppRepository {
 
     override suspend fun getJobsFromApi(): Response<JobDTO> =
         api.getGeneralList(CountryCode.GREAT_BRITAIN.code, 1, ApiConst.APP_ID, ApiConst.API_KEY)
@@ -28,12 +39,10 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
         api.getFilteredList(
             countryCode = jobFilter.country.code,
             page = page,
-            appId = ApiConst.APP_ID,
-            apiKey = ApiConst.API_KEY,
             searchKeyWords = jobFilter.searchKeyWords,
             categoryTag = jobFilter.category?.tag,
-            sortDirection = null,
-            sortBy = null,
+            sortDirection = jobFilter.sortDirection,
+            sortBy = jobFilter.sortBy,
             onlyFullTime = if(jobFilter.onlyFullTime) "1" else null,
             onlyPartTime = if (jobFilter.onlyPartTime) "1" else null,
             onlyContractJobs = if (jobFilter.onlyContractJobs) "1" else null,
@@ -48,16 +57,27 @@ class MainRepository @Inject constructor(private val api: RetrofitService, priva
 
 
     //MAIN table
-    override fun getJobsUIModelDB(): Flow<List<JobUIModel>> =
-        jobDao.getAllJobs()
-
-    override fun getJobsBySalaryAscDB(): Flow<List<JobUIModel>> =
-        jobDao.getJobsBySalaryAsc()
-
-    override fun getJobsBySalaryDescDB(): Flow<List<JobUIModel>> =
-        jobDao.getJobsBySalaryDesc()
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getJobsUIModelDB(filter: JobFilter): Flow<PagingData<JobUIModel>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                initialLoadSize = 10,
+                prefetchDistance = 3,
+                enablePlaceholders = true
+            ),
+            remoteMediator = JobHFRemoteMediator(
+                api = api,
+                database = database,
+                jobFilter = filter,
+            ),
+            pagingSourceFactory = {
+                jobDao.getAllJobs()
+            }
+        ).flow
 
     override val savedJobs = jobDao.getSavedJobs()
+
     override val appliedJobs = jobDao.getAppliedJobs()
 
     override suspend fun toggleSaved(job: Job) {

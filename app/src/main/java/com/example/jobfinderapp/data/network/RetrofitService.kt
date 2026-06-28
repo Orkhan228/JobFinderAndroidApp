@@ -3,11 +3,11 @@ package com.example.jobfinderapp.data.network
 import com.example.jobfinderapp.entity.JobDTO
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RetrofitService {
-
     //Метод, который получает подборку для показа при первом входе в приложение.
     @GET("jobs/{country}/search/{page}")
     suspend fun getGeneralList(
@@ -22,8 +22,7 @@ interface RetrofitService {
     suspend fun getFilteredList(
         @Path("country") countryCode: String,
         @Path("page") page: Int,
-        @Query("app_id") appId: String,
-        @Query("app_key") apiKey: String,
+        @Query("results_per_page") resultsPerPage: Int = 10,
         @Query("what") searchKeyWords: String?,
         @Query("category") categoryTag: String?,
         @Query("sort_dir") sortDirection: String?,
@@ -39,13 +38,4 @@ interface RetrofitService {
         @Query("location4") location4: String?,
         @Query("location5") location5: String?,
     ): Response<JobDTO>
-
-    //Метод, получение единичного элемента по ID.
-    //НЕ ПОДДЕРЖИВАЕТСЯ СО СТОРОНЫ ADZUNA API.
-//    @GET("jobs")
-//    suspend fun getIdentityJob(
-//        @Query("id") id: Int,
-//    ): Response<JobDTO>
-
-
 }

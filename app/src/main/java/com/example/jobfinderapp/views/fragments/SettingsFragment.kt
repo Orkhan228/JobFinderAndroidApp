@@ -24,7 +24,9 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
-    private lateinit var binding: FragmentSettingsBinding
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: SettingsFragmentViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +40,7 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -119,5 +121,11 @@ class SettingsFragment : Fragment() {
             }
 
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 }

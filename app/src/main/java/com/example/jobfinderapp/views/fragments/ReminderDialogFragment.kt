@@ -20,7 +20,8 @@ import com.google.android.material.transition.MaterialElevationScale
 
 class ReminderDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentReminderDialogBinding
+    private var _binding: FragmentReminderDialogBinding? = null
+    private val binding get() = _binding!!
 
     private var selectedYear: Int? = null
     private var selectedMonth: Int? = null
@@ -55,7 +56,7 @@ class ReminderDialogFragment : DialogFragment() {
     ): View? {
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        binding = FragmentReminderDialogBinding.inflate(inflater, container, false)
+        _binding = FragmentReminderDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -257,6 +258,11 @@ class ReminderDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
+    }
 
     companion object {
         const val REQUEST_KEY = "reminder_request_key"

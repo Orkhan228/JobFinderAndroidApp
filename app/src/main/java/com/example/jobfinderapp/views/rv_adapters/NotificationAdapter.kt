@@ -21,61 +21,23 @@ class NotificationAdapter(private val onRootClick: (ReminderEntity) -> Unit, pri
 
                 if (System.currentTimeMillis() >= reminder.triggerAtMillis) {
                     notJobOverdueBtn.visibility = View.VISIBLE
+                } else {
+                    notJobOverdueBtn.visibility = View.GONE
                 }
 
                 notJobEditBtn.setOnClickListener { v ->
-                    v.animate()
-                        .scaleX(0.92f)
-                        .scaleY(0.92f)
-                        .setDuration(100)
-                        .withEndAction {
-                            onEditClick.invoke(reminder)
-                            v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .start()
-                        }
-                        .start()
+                    v.animateClick { onEditClick(reminder) }
                 }
 
                 notJobDeleteBtn.setOnClickListener { v ->
-                    v.animate()
-                        .scaleX(0.92f)
-                        .scaleY(0.92f)
-                        .setDuration(100)
-                        .withEndAction {
-                            onDeleteClick.invoke(reminder)
-                            v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .start()
-                        }
-                        .start()
+                    v.animateClick { onDeleteClick(reminder) }
                 }
 
                 root.setOnClickListener { v ->
-                    v.animate()
-                        .scaleX(0.92f)
-                        .scaleY(0.92f)
-                        .setDuration(100)
-                        .withEndAction {
-                            onRootClick.invoke(reminder)
-                            v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .start()
-                        }
-                        .start()
+                    v.animateClick { onRootClick(reminder) }
                 }
-
             }
-
         }
-
-
     }
 
     override fun onCreateViewHolder(
@@ -93,4 +55,21 @@ class NotificationAdapter(private val onRootClick: (ReminderEntity) -> Unit, pri
         holder.bind(getItem(position))
     }
 
+    private fun View.animateClick(action: () -> Unit) {
+        animate().cancel()
+
+        animate()
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(100)
+            .withEndAction {
+                action.invoke()
+                animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
+    }
 }

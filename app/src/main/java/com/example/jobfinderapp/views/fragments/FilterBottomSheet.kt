@@ -18,7 +18,6 @@ import com.example.jobfinderapp.utils.JobCategories
 import com.example.jobfinderapp.utils.JobCountries
 import com.example.jobfinderapp.R
 import com.example.jobfinderapp.databinding.FragmentFilterModalBotBinding
-import com.example.jobfinderapp.entity.JobSortType
 import com.example.jobfinderapp.viewModels.HomeFragViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -29,7 +28,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class FilterBottomSheet : BottomSheetDialogFragment() {
 
-    private lateinit var binding: FragmentFilterModalBotBinding
+    private var _binding: FragmentFilterModalBotBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: HomeFragViewModel by activityViewModels()
 
@@ -38,7 +38,7 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = FragmentFilterModalBotBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentFilterModalBotBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -103,9 +103,9 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
                     binding.permanentTimeCb.isChecked = currFilter.onlyPermanentJobs
                     binding.categoryDropdown.setText(currFilter.category?.label, false)
                     binding.countryDropdown.setText(currFilter.country.name, false)
-                    binding.sortSalaryCb.isChecked = currFilter.sortBy != JobSortType.DEFAULT
-                    binding.sortSalaryAscRb.isChecked = currFilter.sortBy == JobSortType.SALARY_ASC
-                    binding.sortSalaryDescRb.isChecked = currFilter.sortBy == JobSortType.SALARY_DESC
+                    binding.sortSalaryCb.isChecked = currFilter.sortBy != null
+                    binding.sortSalaryAscRb.isChecked = currFilter.sortBy != null && currFilter.sortDirection == "up"
+                    binding.sortSalaryDescRb.isChecked = currFilter.sortBy != null && currFilter.sortDirection == "down"
 
                     val countryLocCode = countryLocationCodes[currFilter.country.code] ?: "UK"
 
@@ -125,20 +125,56 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        binding.fullTimeCb.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onFullTimeChecked(isChecked)
+        binding.fullTimeCb.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                if (isChecked) {
+                    binding.partTimeCb.isChecked = false
+
+                    viewModel.onFullTimeChecked(true)
+                    viewModel.onPartTimeChecked(false)
+                } else {
+                    viewModel.onFullTimeChecked(false)
+                }
+            }
         }
 
-        binding.partTimeCb.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onPartTimeChecked(isChecked)
+        binding.partTimeCb.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                if (isChecked) {
+                    binding.fullTimeCb.isChecked = false
+
+                    viewModel.onPartTimeChecked(true)
+                    viewModel.onFullTimeChecked(false)
+                } else {
+                    viewModel.onPartTimeChecked(false)
+                }
+            }
         }
 
-        binding.contractTimeCb.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onContractChecked(isChecked)
+        binding.contractTimeCb.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                if (isChecked) {
+                    binding.permanentTimeCb.isChecked = false
+
+                    viewModel.onContractChecked(true)
+                    viewModel.onPermanentChecked(false)
+                } else {
+                    viewModel.onContractChecked(false)
+                }
+            }
         }
 
-        binding.permanentTimeCb.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onPermanentChecked(isChecked)
+        binding.permanentTimeCb.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                if (isChecked) {
+                    binding.contractTimeCb.isChecked = false
+
+                    viewModel.onPermanentChecked(true)
+                    viewModel.onContractChecked(false)
+                } else {
+                    viewModel.onPermanentChecked(false)
+                }
+            }
         }
 
         binding.categoryDropdown.onItemClickListener = object : AdapterView.OnItemClickListener {
@@ -196,34 +232,37 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
 
             if (!isChecked) {
                 binding.sortDirectionRg.clearCheck()
-                viewModel.onSortByChecked(JobSortType.DEFAULT)
+                viewModel.onSortByChanged(false)
+                viewModel.onSortDirectionChanged(null)
             } else {
-                viewModel.onSortByChecked(JobSortType.SALARY_DESC)
+                viewModel.onSortByChanged(true)
                 binding.sortSalaryDescRb.isChecked = true
             }
         }
 
         binding.sortSalaryAscRb.setOnClickListener {
-            viewModel.onSortByChecked(JobSortType.SALARY_ASC)
+            viewModel.onSortDirectionChanged("up")
         }
 
         binding.sortSalaryDescRb.setOnClickListener {
-            viewModel.onSortByChecked(JobSortType.SALARY_DESC)
+            viewModel.onSortDirectionChanged("down")
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filterState.collect { isShown ->
-                    animateClearBtn(isShown)
-                }
-            }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.hasPendingFilterChanges.collect { hasChanges ->
-                    binding.filterSearchBtn.isEnabled = hasChanges
+                launch {
+                    viewModel.filterState.collect { isShown ->
+                        animateClearBtn(isShown)
+                    }
                 }
+
+                launch {
+                    viewModel.enableSearchButton.collect { hasChanges ->
+                        binding.filterSearchBtn.isEnabled = hasChanges
+                    }
+                }
+
             }
         }
     }
@@ -264,4 +303,9 @@ class FilterBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
+    }
 }

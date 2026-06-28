@@ -58,7 +58,9 @@ class DetailsFragment : Fragment() {
     private val args: DetailsFragmentArgs by navArgs()
 
     private val viewModel: DetailsFragmentViewModel by viewModels()
-    private lateinit var binding: FragmentDetailsBinding
+
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding get() = _binding!!
 
     private var saveMenuItem: MenuItem? = null
     private var isSaved = false // текущее состояние избранного
@@ -103,7 +105,7 @@ class DetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -526,5 +528,11 @@ class DetailsFragment : Fragment() {
             }
             false
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 }

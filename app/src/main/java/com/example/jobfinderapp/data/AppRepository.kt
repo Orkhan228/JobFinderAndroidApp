@@ -1,5 +1,6 @@
 package com.example.jobfinderapp.data
 
+import androidx.paging.PagingData
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.entity.Job
@@ -7,30 +8,26 @@ import com.example.jobfinderapp.data.entity.JobUIModel
 import com.example.jobfinderapp.data.entity.ReminderEntity
 import com.example.jobfinderapp.data.entity.SharedJobs
 import com.example.jobfinderapp.entity.JobDTO
+import com.example.jobfinderapp.entity.Result
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 interface AppRepository {
 
     suspend fun getJobsFromApi(): Response<JobDTO>
-
     suspend fun getFilteredJobsFromApi(
         jobFilter: JobFilter,
         page: Int
     ): Response<JobDTO>
 
-    fun getJobsUIModelDB(): Flow<List<JobUIModel>>
-    fun getJobsBySalaryAscDB(): Flow<List<JobUIModel>>
-    fun getJobsBySalaryDescDB(): Flow<List<JobUIModel>>
+    //main flow
+    fun getJobsUIModelDB(filter: JobFilter): Flow<PagingData<JobUIModel>>
 
     suspend fun toggleSaved(job: Job)
-
     suspend fun toggleApplied(appliedJob: AppliedJob)
 
     suspend fun refreshJobs(jobs: List<Job>)
-
     suspend fun clearDB()
-
     suspend fun clearAndInsertJobsDB(jobs: List<Job>)
 
     suspend fun deleteFromApplied(jobID: String)
@@ -42,11 +39,9 @@ interface AppRepository {
     suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel?
     fun getSharedJob(sharedId: String): Flow<JobUIModel>
 
-
     val savedJobs: Flow<List<JobUIModel>>
 
     val appliedJobs: Flow<List<JobUIModel>>
-
 
     suspend fun insertToReminders(reminderEntity: ReminderEntity): Long
     suspend fun deleteFromReminders(reminderEntity: ReminderEntity)

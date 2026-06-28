@@ -5,7 +5,7 @@ data class JobFilter(
     val searchKeyWords: String? = null,
     val category: Category? = null,
     val sortDirection: String? = null,
-    val sortBy: JobSortType = JobSortType.DEFAULT,
+    val sortBy: String? = null,
     val onlyFullTime: Boolean = false,
     val onlyPartTime: Boolean = false,
     val onlyContractJobs: Boolean = false,

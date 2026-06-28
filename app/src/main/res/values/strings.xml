@@ -71,4 +71,5 @@
     <string name="enabled">Enabled</string>
     <string name="sort_by_salary">Sort by Salary</string>
     <string name="update">Update</string>
+    <string name="retry">Retry</string>
 </resources>

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
+    kotlin("plugin.serialization") version "2.0.0"
+
     id("com.google.devtools.ksp")
 
     //SafeArgs for Navigation
@@ -60,6 +62,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
     // Основная библиотека Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     // Конвертер
@@ -83,15 +87,34 @@ dependencies {
 
     // Основная библиотека Room
     implementation("androidx.room:room-runtime:$roomVersion")
-
     // Поддержка Kotlin Coroutines для Room (suspend функции)
     implementation("androidx.room:room-ktx:$roomVersion")
-
+    implementation("androidx.room:room-paging:$roomVersion")
     // Процессор аннотаций (используем KSP)
     ksp("androidx.room:room-compiler:$roomVersion")
+
+    // Для встроенной поддержки paging3
+    val pagingVersion = "3.3.6" // Актуальная стабильная версия
+    implementation("androidx.paging:paging-runtime:$pagingVersion")
 
     //Зависимость для SpringAnimation
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 
+    //kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+
+    //Data Store современаая замена устаревшему SharedPreferences
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    //SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    //Facebook shimmer для аннимированного скелетона
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    //lottie animation
+    implementation("com.airbnb.android:lottie:6.7.1")
 }

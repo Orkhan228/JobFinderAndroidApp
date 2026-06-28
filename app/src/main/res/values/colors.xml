@@ -41,4 +41,5 @@
     <color name="orange_dark">#2D251A</color>
     <color name="turquoise">#008B8B</color>
     <color name="turquoise_light">#CBF9F1</color>
+    <color name="placeholder_bg">#E0E0E0</color>
 </resources>

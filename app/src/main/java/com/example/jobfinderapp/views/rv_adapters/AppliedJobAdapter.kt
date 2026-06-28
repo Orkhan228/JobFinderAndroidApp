@@ -25,9 +25,8 @@ class AppliedJobAdapter(private val onClick: (JobUIModel, View) -> Unit, private
             val context = binding.root.context
 
             binding.appliedJobNameTv.text = jobUIModel.job.title
-            if (jobUIModel.isApplied) {
-                binding.appliedBadgeLay.visibility = View.VISIBLE
-            }
+            binding.appliedBadgeLay.visibility =
+                if (jobUIModel.isApplied) View.VISIBLE else View.GONE
             binding.appliedJobCompanyNameTv.text = jobUIModel.job.company.display_name
             binding.appliedLocationAddressTv.text = jobUIModel.job.location.display_name
             binding.appliedContractTypeTv.text = jobUIModel.job.contract_type
@@ -42,11 +41,16 @@ class AppliedJobAdapter(private val onClick: (JobUIModel, View) -> Unit, private
             if (jobUIModel.job.category.label != "Not specified") {
                 binding.appliedJobCategoryTv.visibility = View.VISIBLE
                 binding.appliedJobCategoryTv.text = jobUIModel.job.category.label
+            } else {
+                binding.appliedJobCategoryTv.visibility = View.GONE
             }
             if (jobUIModel.appliedTime != null) {
                 binding.appliedTimeJobLay.visibility = View.VISIBLE
                 binding.appliedTimeTv.text = jobUIModel.appliedTime.toTimeAgo()
+            } else {
+                binding.appliedTimeJobLay.visibility = View.GONE
             }
+
             binding.appliedWithdrawBtn.setOnClickListener {
                 withDrawClick.invoke(jobUIModel)
             }
@@ -116,7 +120,6 @@ class AppliedJobAdapter(private val onClick: (JobUIModel, View) -> Unit, private
     ) {
         holder.bind(getItem(position))
     }
-
 }
 
 

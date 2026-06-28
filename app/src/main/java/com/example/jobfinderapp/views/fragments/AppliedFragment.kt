@@ -35,9 +35,10 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AppliedFragment : Fragment(), ReselectedScroll {
 
-    private lateinit var binding: FragmentAppliedBinding
-    private val viewModel: AppliedFragmentViewModel by viewModels()
+    private var _binding: FragmentAppliedBinding? = null
+    private val binding get() = _binding!!
 
+    private val viewModel: AppliedFragmentViewModel by viewModels()
     private var didRunEnterAnimationForRv = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +51,7 @@ class AppliedFragment : Fragment(), ReselectedScroll {
         savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentAppliedBinding.inflate(inflater, container, false)
+        _binding = FragmentAppliedBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -290,6 +291,12 @@ class AppliedFragment : Fragment(), ReselectedScroll {
             .scaleY(1f)
             .setDuration(300)
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 
     override fun smoothScrollToStart() {

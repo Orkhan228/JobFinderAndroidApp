@@ -34,7 +34,9 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class NotificationsFragment : Fragment() {
 
-    private lateinit var binding: FragmentNotificationsBinding
+    private var _binding: FragmentNotificationsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: NotificationsFragmentViewModel by viewModels()
 
     private lateinit var notificationAdapter: NotificationAdapter
@@ -54,7 +56,7 @@ class NotificationsFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+        _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -312,4 +314,9 @@ class NotificationsFragment : Fragment() {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
+    }
 }

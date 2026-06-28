@@ -1,12 +1,12 @@
 package com.example.jobfinderapp.data.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import com.example.jobfinderapp.data.entity.AppliedJob
 import com.example.jobfinderapp.data.entity.Job
 import com.example.jobfinderapp.data.entity.JobUIModel
@@ -17,14 +17,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface JobDao {
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertJobs(jobList: List<Job>)
 
     @Query("DELETE FROM job_table")
     suspend fun clearDB()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertToSaved(savedJob: SavedJob)
 
     @Query("DELETE FROM saved_jobs WHERE id = :id")
@@ -33,7 +32,9 @@ interface JobDao {
     @Query("SELECT EXISTS(SELECT 1 FROM saved_jobs WHERE id = :id)")
     suspend fun isInSaved(id: String): Boolean
 
-    //Sorted queries
+
+
+    //main flow
     @Query("""
     SELECT job_table.*,
     case when saved_jobs.id is not null then 1 else 0 end as isSaved,
@@ -41,30 +42,12 @@ interface JobDao {
     from job_table
     left join saved_jobs on saved_jobs.id = job_table.id
     left join applied_jobs on applied_jobs.id = job_table.id
+    order by job_table.rowid asc
     """)
-    fun getAllJobs(): Flow<List<JobUIModel>>
+    fun getAllJobs(): PagingSource<Int, JobUIModel>
 
-    @Query("""
-    SELECT job_table.*,
-    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
-    case when applied_jobs.id is not null then 1 else 0 end as isApplied
-    from job_table 
-    left join saved_jobs on saved_jobs.id = job_table.id
-    left join applied_jobs on applied_jobs.id = job_table.id
-    ORDER BY COALESCE(job_table.required_salary, 0) ASC
-    """)
-    fun getJobsBySalaryAsc(): Flow<List<JobUIModel>>
-
-    @Query("""
-    SELECT job_table.*,
-    case when saved_jobs.id is not null then 1 else 0 end as isSaved,
-    case when applied_jobs.id is not null then 1 else 0 end as isApplied
-    from job_table 
-    left join saved_jobs on saved_jobs.id = job_table.id
-    left join applied_jobs on applied_jobs.id = job_table.id
-    ORDER BY COALESCE(job_table.required_salary, 0) DESC
-    """)
-    fun getJobsBySalaryDesc(): Flow<List<JobUIModel>>
+    @Query("select count(*) from job_table")
+    suspend fun countAllJobs(): Int
 
     @Query("""
     select 
@@ -73,13 +56,14 @@ interface JobDao {
     case when applied_jobs.id is not null then 1 else 0 end as isApplied
     from saved_jobs
     left join applied_jobs on saved_jobs.id = applied_jobs.id
+    order by saved_jobs.rowid desc
     """)
     fun getSavedJobs(): Flow<List<JobUIModel>>
 
     @Query("SELECT job_table.*, case when saved_jobs.id is not null then 1 else 0 end as isSaved,  case when applied_jobs.id is not null then 1 else 0 end as isApplied from job_table left join saved_jobs on saved_jobs.id = job_table.id left join applied_jobs on applied_jobs.id = job_table.id where job_table.id = :id")
     fun getJobById(id: String): Flow<JobUIModel?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertToApplied(appliedJob: AppliedJob)
 
     @Query("DELETE FROM applied_jobs where id = :id")
@@ -95,6 +79,7 @@ interface JobDao {
         applied_jobs.applied_time as appliedTime
         from applied_jobs
         left join saved_jobs on saved_jobs.id = applied_jobs.id
+        order by applied_jobs.rowid desc
     """)
     fun getAppliedJobs(): Flow<List<JobUIModel>>
 
@@ -104,8 +89,7 @@ interface JobDao {
         insertJobs(jobList)
     }
 
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertToSharedJobsTable(sharedJobs: SharedJobs)
 
     @Delete
@@ -118,7 +102,7 @@ interface JobDao {
     suspend fun getSharedJobByIdOnce(sharedId: String): JobUIModel?
 
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertToReminderTable(reminderEntity: ReminderEntity): Long
 
     @Delete

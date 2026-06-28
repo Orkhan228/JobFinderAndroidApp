@@ -1,5 +1,6 @@
 package com.example.jobfinderapp.domain
 
+import androidx.paging.PagingData
 import com.example.jobfinderapp.entity.JobFilter
 import com.example.jobfinderapp.data.AppRepository
 import com.example.jobfinderapp.data.entity.AppliedJob
@@ -15,17 +16,12 @@ import javax.inject.Inject
 class InterActor @Inject constructor(private val repo: AppRepository) {
 
     //API
-    suspend fun getJobsFromRepo(): Response<JobDTO> =
-        repo.getJobsFromApi()
-
     suspend fun getFilteredJobsFromRepo(filter: JobFilter, page: Int = 1): Response<JobDTO> =
         repo.getFilteredJobsFromApi(filter, page)
 
 
     //LOCAL DB
-    fun getJobsUIModelDB(): Flow<List<JobUIModel>> = repo.getJobsUIModelDB()
-    fun getJobsBySalaryAscDB(): Flow<List<JobUIModel>> = repo.getJobsBySalaryAscDB()
-    fun getJobsBySalaryDescDB(): Flow<List<JobUIModel>> = repo.getJobsBySalaryDescDB()
+    fun getJobsUIModelDB(filter: JobFilter): Flow<PagingData<JobUIModel>> = repo.getJobsUIModelDB(filter)
 
     fun getOnlySavedJobsFromDB(): Flow<List<JobUIModel>> = repo.savedJobs
 
